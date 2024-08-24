@@ -1,7 +1,6 @@
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from fastapi.encoders import jsonable_encoder
 from typing import Annotated
 
 from src.database import get_db
@@ -18,7 +17,7 @@ router = APIRouter(
 def create_anime(anime_create: AnimeCreate, session: Annotated[Session, Depends(get_db)]):
     anime = anime_crud.create_anime(
         session=session,
-        anime_create=jsonable_encoder(anime_create)
+        anime_create=anime_create
     )
 
     return anime
