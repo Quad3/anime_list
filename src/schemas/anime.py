@@ -15,8 +15,8 @@ class FromTo(BaseModel):
 class AnimeBase(BaseModel):
     name: str
     state: State
-    rate: int = Field(ge=1, le=10)
-    review: str
+    rate: int | None = Field(ge=1, le=10)
+    review: str | None
     from_to: list[FromTo]
 
 
