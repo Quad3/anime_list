@@ -22,7 +22,7 @@ class Anime(Base):
     rate = Column(Integer, nullable=True)
     review = Column(String(4096), nullable=True)
 
-    from_to = relationship("AnimeFromTo", back_populates="anime_id")
+    from_to = relationship("AnimeFromTo", back_populates="anime")
 
 
 class AnimeFromTo(Base):
