@@ -1,15 +1,28 @@
 import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, AliasChoices
 from pydantic import ConfigDict
 from pydantic.types import UUID4
 
 from src.models import State
 
 
-class FromTo(BaseModel):
-    from_: datetime.date
+class FromToBase(BaseModel):
+    from_: datetime.date = Field(alias="from", validation_alias=AliasChoices("from", "from_"))
     to: datetime.date | None
+
+
+class FromToCreate(FromToBase):
+    pass
+
+
+class FromToRead(FromToBase):
+    pass
+
+
+class FromTo(FromToBase):
+    id: int
+    anime_id: UUID4
 
 
 class AnimeBase(BaseModel):
@@ -21,7 +34,7 @@ class AnimeBase(BaseModel):
 
 
 class AnimeCreate(AnimeBase):
-    pass
+    from_to: list[FromToCreate]
 
 
 class AnimeRead(AnimeBase):
@@ -29,4 +42,5 @@ class AnimeRead(AnimeBase):
         from_attributes=True,
     )
 
+    from_to: list[FromToRead]
     uuid: UUID4

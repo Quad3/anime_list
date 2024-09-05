@@ -9,11 +9,18 @@ def create_anime(
         session: Session,
         anime_create: AnimeCreate
 ) -> models.Anime:
-    anime = models.Anime(**jsonable_encoder(anime_create))
+    anime_create_dump = anime_create.model_dump()
+    anime_from_to = jsonable_encoder(anime_create_dump.pop("from_to"))
 
+    anime = models.Anime(**anime_create_dump)
     session.add(anime)
     session.commit()
 
+    db_from_to = [models.AnimeFromTo(**from_to, anime_id=anime.uuid) for from_to in anime_from_to]
+    session.add_all(db_from_to)
+    session.commit()
+
+    anime.from_to = db_from_to
     return anime
 
 
