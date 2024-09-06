@@ -1,5 +1,6 @@
 import uuid
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.sql import text
 from fastapi.encoders import jsonable_encoder
 from typing import Type
 
@@ -27,7 +28,8 @@ def create_anime(
 
 
 def get_anime_list(session: Session) -> list[Type[models.Anime]]:
-    return session.query(models.Anime).options(joinedload(models.Anime.from_to)).all()
+    return session.query(models.Anime).options(joinedload(models.Anime.from_to)).\
+        order_by(text('anime_from_to_1."from" asc')).all()
 
 
 def get_anime(session: Session, anime_id: uuid.UUID) -> Type[AnimeRead]:
