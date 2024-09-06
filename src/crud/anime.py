@@ -1,5 +1,6 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from fastapi.encoders import jsonable_encoder
+from typing import Type
 
 from schemas.anime import AnimeCreate
 import models
@@ -24,5 +25,5 @@ def create_anime(
     return anime
 
 
-def get_anime_list(session: Session):
-    return session.query(models.Anime).join(models.AnimeFromTo).all()
+def get_anime_list(session: Session) -> list[Type[models.Anime]]:
+    return session.query(models.Anime).options(joinedload(models.Anime.from_to)).all()
