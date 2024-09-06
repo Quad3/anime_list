@@ -1,10 +1,11 @@
 import uuid
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.sql import text
+from fastapi import HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import Type
 
-from schemas.anime import AnimeCreate, AnimeRead
+from schemas.anime import AnimeCreate, AnimeRead, AnimeUpdate
 import models
 
 
@@ -35,3 +36,22 @@ def get_anime_list(session: Session) -> list[Type[models.Anime]]:
 def get_anime(session: Session, anime_id: uuid.UUID) -> Type[AnimeRead]:
     return session.query(models.Anime).options(joinedload(models.Anime.from_to))\
         .filter(models.Anime.uuid == anime_id).first()
+
+
+def update_anime(
+        session: Session,
+        anime_update: AnimeUpdate,
+        anime_id: uuid.UUID
+) -> Type[models.Anime]:
+    db_anime = session.query(models.Anime).filter(models.Anime.uuid == anime_id).first()
+    if not db_anime:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Anime not found")
+
+    anime_update_data = anime_update.model_dump(exclude_none=True)
+    for key, value in anime_update_data.items():
+        setattr(db_anime, key, value)
+
+    session.add(db_anime)
+    session.commit()
+
+    return db_anime
