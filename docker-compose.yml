@@ -5,24 +5,16 @@ services:
     container_name: myanime_db
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    expose:
-      - 5432
-    env_file:
-      - .env
-
-  app:
-    build:
-      context: .
-    env_file:
-      - .env
-    container_name: myanime_app
-    command: "gunicorn --chdir ./src main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:5000"
     ports:
-      - "5000:5000"
-    depends_on:
-      - db
-    volumes:
-      - ./:/fastapi_app
+      - "5433:5432"
+    env_file:
+      - .env
+    networks:
+      - custom
 
 volumes:
   postgres_data:
+
+networks:
+  custom:
+    driver: bridge

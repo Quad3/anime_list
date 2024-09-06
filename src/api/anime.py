@@ -1,11 +1,10 @@
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import Annotated
 
-from src.database import get_db
-from src.schemas.anime import AnimeCreate, AnimeRead
-from src.crud import anime as anime_crud
+from database import get_db
+from schemas.anime import AnimeCreate, AnimeRead
+from crud import anime as anime_crud
 
 
 router = APIRouter(

@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, AliasChoices
 from pydantic import ConfigDict
 from pydantic.types import UUID4
 
-from src.models import State
+from models import State
 
 
 class FromToBase(BaseModel):
