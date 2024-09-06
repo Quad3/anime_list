@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+import uuid
+from fastapi import APIRouter, Depends, Path
 from sqlalchemy.orm import Session
 from typing import Annotated
 
@@ -26,3 +27,9 @@ def create_anime(anime_create: AnimeCreate, session: Annotated[Session, Depends(
 def get_anime_list(session: Annotated[Session, Depends(get_db)]):
     anime_list = anime_crud.get_anime_list(session=session)
     return anime_list
+
+
+@router.get("/{id}", response_model=AnimeRead)
+def get_anime_list(session: Annotated[Session, Depends(get_db)], anime_id: Annotated[uuid.UUID, Path(alias="id")]):
+    anime = anime_crud.get_anime(session=session, anime_id=anime_id)
+    return anime
