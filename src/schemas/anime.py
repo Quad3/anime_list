@@ -1,31 +1,30 @@
 import datetime
 
-from pydantic import BaseModel, Field, AliasChoices
+from pydantic import BaseModel, Field
 from pydantic import ConfigDict
 from pydantic.types import UUID4
 
 from models import State
 
 
-class FromToBase(BaseModel):
-    from_: datetime.date = Field(alias="from", validation_alias=AliasChoices("from", "from_"))
-    to: datetime.date | None
+class StartEndBase(BaseModel):
+    start_date: datetime.date
+    end_date: datetime.date | None
 
 
-class FromToCreate(FromToBase):
+class StartEndCreate(StartEndBase):
     pass
 
 
-class FromToRead(FromToBase):
+class StartEndRead(StartEndBase):
     pass
 
 
-class FromToUpdate(FromToBase):
-    from_: datetime.date | None = Field(alias="from", validation_alias=AliasChoices("from", "from_"), default=None)
-    to: datetime.date | None = None
+class StartEndUpdate(StartEndBase):
+    end_date: datetime.date | None = None
 
 
-class FromTo(FromToBase):
+class StartEnd(StartEndBase):
     id: int
     anime_id: UUID4
 
@@ -38,7 +37,7 @@ class AnimeBase(BaseModel):
 
 
 class AnimeCreate(AnimeBase):
-    from_to: list[FromToCreate]
+    start_end: list[StartEndCreate]
 
 
 class AnimeRead(AnimeBase):
@@ -46,7 +45,7 @@ class AnimeRead(AnimeBase):
         from_attributes=True,
     )
 
-    from_to: list[FromToRead]
+    start_end: list[StartEndRead]
     uuid: UUID4
 
 
@@ -54,4 +53,4 @@ class AnimeUpdate(AnimeBase):
     name: str | None = None
     state: State | None = None
     rate: int | None = Field(ge=1, le=10, default=None)
-    review: str | None
+    review: str | None = None

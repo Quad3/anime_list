@@ -37,8 +37,8 @@ def get_anime_list(session: Annotated[Session, Depends(get_db)], anime_id: Annot
 
 @router.patch("/update/{id}", response_model=AnimeUpdate)
 def update_anime(
-        anime_update: AnimeUpdate,
         session: Annotated[Session, Depends(get_db)],
+        anime_update: AnimeUpdate,
         anime_id: Annotated[uuid.UUID, Path(alias="id")]
 ):
     updated_anime = anime_crud.update_anime(session=session, anime_update=anime_update, anime_id=anime_id)
