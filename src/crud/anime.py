@@ -29,20 +29,16 @@ def create_anime(
 
 
 def get_anime_list(session: Session):
-    stmt = select(models.Anime)\
-        .outerjoin(models.Anime.start_end)\
-        .options(joinedload(models.Anime.start_end))\
-        .order_by(models.AnimeStartEnd.start_date)
+    stmt = select(models.Anime) \
+        .options(joinedload(models.Anime.start_end))
     result = session.scalars(stmt).unique().all()
     return result
 
 
 def get_anime(session: Session, anime_id: uuid.UUID) -> Type[AnimeRead]:
-    stmt = select(models.Anime)\
-        .outerjoin(models.Anime.start_end)\
-        .options(joinedload(models.Anime.start_end))\
-        .filter(models.Anime.uuid == anime_id)\
-        .order_by(models.AnimeStartEnd.start_date)
+    stmt = select(models.Anime) \
+        .options(joinedload(models.Anime.start_end)) \
+        .filter(models.Anime.uuid == anime_id)
     result = session.scalars(stmt).unique().first()
     return result
 

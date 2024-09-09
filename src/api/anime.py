@@ -30,7 +30,7 @@ def get_anime_list(session: Annotated[Session, Depends(get_db)]):
 
 
 @router.get("/{id}", response_model=AnimeRead)
-def get_anime_list(session: Annotated[Session, Depends(get_db)], anime_id: Annotated[uuid.UUID, Path(alias="id")]):
+def get_anime(session: Annotated[Session, Depends(get_db)], anime_id: Annotated[uuid.UUID, Path(alias="id")]):
     anime = anime_crud.get_anime(session=session, anime_id=anime_id)
     return anime
 
