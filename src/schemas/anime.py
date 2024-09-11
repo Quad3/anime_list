@@ -21,6 +21,7 @@ class StartEndRead(StartEndBase):
 
 
 class StartEndUpdate(StartEndBase):
+    start_date: datetime.date | None = None
     end_date: datetime.date | None = None
 
 

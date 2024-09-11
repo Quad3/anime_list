@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from typing import Annotated
 
 from database import get_db
-from schemas.anime import AnimeCreate, AnimeRead, AnimeUpdate
+from schemas.anime import AnimeCreate, AnimeRead, AnimeUpdate, StartEndUpdate, StartEndRead
 from crud import anime as anime_crud
 
 
@@ -43,3 +43,17 @@ def update_anime(
 ):
     updated_anime = anime_crud.update_anime(session=session, anime_update=anime_update, anime_id=anime_id)
     return updated_anime
+
+
+@router.patch("/update/{id}/start-end", response_model=StartEndRead, description="Updates last start_end dates")
+def update_anime_from_to(
+        session: Annotated[Session, Depends(get_db)],
+        anime_id: Annotated[uuid.UUID, Path(alias="id")],
+        start_end_update: StartEndUpdate
+):
+    updated_from_to = anime_crud.update_anime_from_to(
+        session=session,
+        anime_id=anime_id,
+        start_end_update=start_end_update
+    )
+    return updated_from_to
