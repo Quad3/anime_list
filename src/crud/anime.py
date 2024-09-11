@@ -32,14 +32,20 @@ def get_anime_list(session: Session):
     stmt = select(models.Anime) \
         .options(joinedload(models.Anime.start_end))
     result = session.scalars(stmt).unique().all()
+    if not result:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="There is no anime yet")
+
     return result
 
 
-def get_anime(session: Session, anime_id: uuid.UUID) -> Type[AnimeRead]:
+def get_anime(session: Session, anime_id: uuid.UUID):
     stmt = select(models.Anime) \
         .options(joinedload(models.Anime.start_end)) \
         .filter(models.Anime.uuid == anime_id)
     result = session.scalars(stmt).unique().first()
+    if not result:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Anime not found")
+
     return result
 
 
