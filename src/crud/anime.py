@@ -17,12 +17,16 @@ def create_anime(
     anime_start_end = jsonable_encoder(anime_create_dump.pop("start_end"))
 
     anime = models.Anime(**anime_create_dump)
-    session.add(anime)
-    session.commit()
 
-    db_start_end = [models.AnimeStartEnd(**start_end, anime_id=anime.uuid) for start_end in anime_start_end]
-    session.add_all(db_start_end)
-    session.commit()
+    with session.begin():
+        session.add(anime)
+
+        db_start_end = []
+        for start_end in anime_start_end:
+            db_start_end.append(models.AnimeStartEnd(**start_end, anime_id=anime.uuid))
+            anime.start_end.append(db_start_end[-1])
+
+        session.add_all(db_start_end)
 
     anime.start_end = db_start_end
     return anime

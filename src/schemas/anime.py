@@ -9,7 +9,7 @@ from models import State
 
 class StartEndBase(BaseModel):
     start_date: datetime.date
-    end_date: datetime.date | None
+    end_date: datetime.date | None = None
 
 
 class StartEndCreate(StartEndBase):
