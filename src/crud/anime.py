@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import Type
 
-from schemas.anime import AnimeCreate, AnimeRead, AnimeUpdate, StartEndUpdate
+from schemas.anime import AnimeCreate, AnimeUpdate, StartEndUpdate
 import models
 
 
