@@ -1,2 +1,2 @@
 from database import Base
-from models import Anime
+from anime.models import Anime

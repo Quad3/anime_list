@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 from pydantic import ConfigDict
 from pydantic.types import UUID4
 
-from models import State
+from .models import State
 
 
 class StartEndBase(BaseModel):

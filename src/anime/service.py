@@ -4,8 +4,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select, desc
 from fastapi import HTTPException, status
 
-from schemas.anime import AnimeCreate, AnimeUpdate, StartEndUpdate, StartEndCreate
-import models
+from .schemas import (
+    AnimeCreate,
+    AnimeUpdate,
+    StartEndUpdate,
+    StartEndCreate
+)
+from . import models
+from .utils import is_start_end_valid
+
+
+async def get_anime_by_id(session: AsyncSession, anime_id: uuid.UUID):
+    stmt = select(models.Anime).filter(models.Anime.uuid == anime_id)
+    result = await session.scalars(stmt)
+    return result.first()
 
 
 async def create_anime(
@@ -22,7 +34,16 @@ async def create_anime(
 
         db_start_end = []
         for start_end in anime_start_end:
-            db_start_end.append(models.AnimeStartEnd(**start_end, anime_id=anime.uuid))
+            start_date = start_end.get("start_date")
+            end_date = start_end.get("end_date")
+            if start_date and end_date:
+                is_start_end_valid(start_date, end_date)
+
+            db_start_end.append(models.AnimeStartEnd(
+                start_date=start_date,
+                end_date=end_date,
+                anime_id=anime.uuid)
+            )
             anime.start_end.append(db_start_end[-1])
 
         session.add_all(db_start_end)
@@ -57,22 +78,16 @@ async def get_anime(session: AsyncSession, anime_id: uuid.UUID):
 async def update_anime(
         session: AsyncSession,
         anime_update: AnimeUpdate,
-        anime_id: uuid.UUID
+        anime: models.Anime
 ):
-    stmt = select(models.Anime).filter(models.Anime.uuid == anime_id)
-    result = await session.scalars(stmt)
-    db_anime = result.first()
-    if not db_anime:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Anime not found")
-
     anime_update_data = anime_update.model_dump(exclude_none=True)
     for key, value in anime_update_data.items():
-        setattr(db_anime, key, value)
+        setattr(anime, key, value)
 
-    session.add(db_anime)
+    session.add(anime)
     await session.commit()
 
-    return db_anime
+    return anime
 
 
 async def update_anime_start_end(
@@ -89,6 +104,10 @@ async def update_anime_start_end(
     if not db_start_end:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Data not found")
 
+    start_date = start_end_update.start_date if start_end_update.start_date else db_start_end.start_date
+    end_date = start_end_update.end_date if start_end_update.end_date else db_start_end.end_date
+    is_start_end_valid(start_date, end_date)
+
     for key, value in start_end_update.model_dump(exclude_none=True).items():
         setattr(db_start_end, key, value)
 
@@ -101,17 +120,12 @@ async def update_anime_start_end(
 async def create_anime_start_end(
         session: AsyncSession,
         start_end_create: StartEndCreate,
-        anime_id: uuid.UUID
+        anime: models.Anime
 ):
-    stmt = select(models.Anime).filter(models.Anime.uuid == anime_id)
-    result = await session.scalars(stmt)
-    db_anime = result.first()
-    if not db_anime:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Anime not found")
-
-    start_end = models.AnimeStartEnd(**start_end_create.model_dump(), anime_id=db_anime.uuid)
+    start_end = models.AnimeStartEnd(**start_end_create.model_dump(), anime_id=anime.uuid)
+    if start_end.start_date and start_end.end_date:
+        is_start_end_valid(start_end.start_date, start_end.end_date)
     session.add(start_end)
-    print(start_end)
-
     await session.commit()
+
     return start_end

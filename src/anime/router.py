@@ -1,12 +1,18 @@
 import uuid
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, Path, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 
 from database import get_db
-from schemas.anime import AnimeCreate, AnimeRead, AnimeUpdate, StartEndUpdate, StartEndRead, StartEndCreate
-from crud import anime as anime_crud
-
+from .schemas import (
+    AnimeCreate,
+    AnimeRead,
+    AnimeUpdate,
+    StartEndUpdate,
+    StartEndRead,
+    StartEndCreate
+)
+from . import service
 
 router = APIRouter(
     tags=["Anime"]
@@ -15,7 +21,7 @@ router = APIRouter(
 
 @router.post("/create", response_model=AnimeRead)
 async def create_anime(anime_create: AnimeCreate, session: Annotated[AsyncSession, Depends(get_db)]):
-    anime = await anime_crud.create_anime(
+    anime = await service.create_anime(
         session=session,
         anime_create=anime_create
     )
@@ -24,7 +30,7 @@ async def create_anime(anime_create: AnimeCreate, session: Annotated[AsyncSessio
 
 @router.get("/", response_model=list[AnimeRead])
 async def get_anime_list(session: Annotated[AsyncSession, Depends(get_db)]):
-    anime_list = await anime_crud.get_anime_list(session=session)
+    anime_list = await service.get_anime_list(session=session)
     return anime_list
 
 
@@ -33,7 +39,7 @@ async def get_anime(
         session: Annotated[AsyncSession, Depends(get_db)],
         anime_id: Annotated[uuid.UUID, Path(alias="id")]
 ):
-    anime = await anime_crud.get_anime(
+    anime = await service.get_anime(
         session=session,
         anime_id=anime_id
     )
@@ -46,10 +52,14 @@ async def update_anime(
         anime_update: AnimeUpdate,
         anime_id: Annotated[uuid.UUID, Path(alias="id")]
 ):
-    updated_anime = await anime_crud.update_anime(
+    anime = await service.get_anime_by_id(session=session, anime_id=anime_id)
+    if anime is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Anime with this id does not exist")
+
+    updated_anime = await service.update_anime(
         session=session,
         anime_update=anime_update,
-        anime_id=anime_id
+        anime=anime
     )
     return updated_anime
 
@@ -60,7 +70,11 @@ async def update_anime_start_end(
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
         start_end_update: StartEndUpdate
 ):
-    updated_start_end = await anime_crud.update_anime_start_end(
+    anime = await service.get_anime_by_id(session=session, anime_id=anime_id)
+    if anime is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Anime with this id does not exist")
+
+    updated_start_end = await service.update_anime_start_end(
         session=session,
         anime_id=anime_id,
         start_end_update=start_end_update
@@ -74,9 +88,13 @@ async def create_anime_start_end(
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
         start_end_create: StartEndCreate
 ):
-    start_end = await anime_crud.create_anime_start_end(
+    anime = await service.get_anime_by_id(session=session, anime_id=anime_id)
+    if anime is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Anime with this id does not exist")
+
+    start_end = await service.create_anime_start_end(
         session=session,
-        anime_id=anime_id,
+        anime=anime,
         start_end_create=start_end_create
     )
     return start_end
