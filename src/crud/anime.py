@@ -75,7 +75,7 @@ async def update_anime(
     return db_anime
 
 
-async def update_anime_from_to(
+async def update_anime_start_end(
         session: AsyncSession,
         start_end_update: StartEndUpdate,
         anime_id: uuid.UUID
@@ -98,7 +98,7 @@ async def update_anime_from_to(
     return db_start_end
 
 
-async def create_anime_from_to(
+async def create_anime_start_end(
         session: AsyncSession,
         start_end_create: StartEndCreate,
         anime_id: uuid.UUID

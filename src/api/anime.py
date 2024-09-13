@@ -60,12 +60,12 @@ async def update_anime_start_end(
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
         start_end_update: StartEndUpdate
 ):
-    updated_from_to = await anime_crud.update_anime_from_to(
+    updated_start_end = await anime_crud.update_anime_start_end(
         session=session,
         anime_id=anime_id,
         start_end_update=start_end_update
     )
-    return updated_from_to
+    return updated_start_end
 
 
 @router.post("/{id}/create-start-end", response_model=StartEndRead)
@@ -74,7 +74,7 @@ async def create_anime_start_end(
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
         start_end_create: StartEndCreate
 ):
-    start_end = await anime_crud.create_anime_from_to(
+    start_end = await anime_crud.create_anime_start_end(
         session=session,
         anime_id=anime_id,
         start_end_create=start_end_create
