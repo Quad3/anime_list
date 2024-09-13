@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select, desc
 from fastapi import HTTPException, status
 
-from schemas.anime import AnimeCreate, AnimeUpdate, StartEndUpdate
+from schemas.anime import AnimeCreate, AnimeUpdate, StartEndUpdate, StartEndCreate
 import models
 
 
@@ -96,3 +96,22 @@ async def update_anime_from_to(
     await session.commit()
 
     return db_start_end
+
+
+async def create_anime_from_to(
+        session: AsyncSession,
+        start_end_create: StartEndCreate,
+        anime_id: uuid.UUID
+):
+    stmt = select(models.Anime).filter(models.Anime.uuid == anime_id)
+    result = await session.scalars(stmt)
+    db_anime = result.first()
+    if not db_anime:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Anime not found")
+
+    start_end = models.AnimeStartEnd(**start_end_create.model_dump(), anime_id=db_anime.uuid)
+    session.add(start_end)
+    print(start_end)
+
+    await session.commit()
+    return start_end

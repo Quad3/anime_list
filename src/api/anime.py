@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 
 from database import get_db
-from schemas.anime import AnimeCreate, AnimeRead, AnimeUpdate, StartEndUpdate, StartEndRead
+from schemas.anime import AnimeCreate, AnimeRead, AnimeUpdate, StartEndUpdate, StartEndRead, StartEndCreate
 from crud import anime as anime_crud
 
 
@@ -40,7 +40,7 @@ async def get_anime(
     return anime
 
 
-@router.patch("/update/{id}", response_model=AnimeUpdate)
+@router.patch("/{id}/update", response_model=AnimeUpdate)
 async def update_anime(
         session: Annotated[AsyncSession, Depends(get_db)],
         anime_update: AnimeUpdate,
@@ -54,8 +54,8 @@ async def update_anime(
     return updated_anime
 
 
-@router.patch("/update/{id}/start-end", response_model=StartEndRead, description="Updates last start_end dates")
-async def update_anime_from_to(
+@router.patch("/{id}/update-start-end", response_model=StartEndRead, description="Updates last start_end dates")
+async def update_anime_start_end(
         session: Annotated[AsyncSession, Depends(get_db)],
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
         start_end_update: StartEndUpdate
@@ -66,3 +66,17 @@ async def update_anime_from_to(
         start_end_update=start_end_update
     )
     return updated_from_to
+
+
+@router.post("/{id}/create-start-end", response_model=StartEndRead)
+async def create_anime_start_end(
+        session: Annotated[AsyncSession, Depends(get_db)],
+        anime_id: Annotated[uuid.UUID, Path(alias="id")],
+        start_end_create: StartEndCreate
+):
+    start_end = await anime_crud.create_anime_from_to(
+        session=session,
+        anime_id=anime_id,
+        start_end_create=start_end_create
+    )
+    return start_end
