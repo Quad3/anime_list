@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, Path, HTTPException, status
+from fastapi import APIRouter, Depends, Path, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 
@@ -29,8 +29,12 @@ async def create_anime(anime_create: AnimeCreate, session: Annotated[AsyncSessio
 
 
 @router.get("/", response_model=list[AnimeRead])
-async def get_anime_list(session: Annotated[AsyncSession, Depends(get_db)]):
-    anime_list = await service.get_anime_list(session=session)
+async def get_anime_list(
+        session: Annotated[AsyncSession, Depends(get_db)],
+        limit: Annotated[int, Query(ge=1)] = 5,
+        page: Annotated[int, Query(ge=1)] = 1
+):
+    anime_list = await service.get_anime_list(session=session, limit=limit, page=page)
     return anime_list
 
 

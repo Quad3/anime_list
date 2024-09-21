@@ -1,4 +1,5 @@
 import uuid
+import sqlalchemy.sql.functions as func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select, desc
@@ -52,13 +53,26 @@ async def create_anime(
     return anime
 
 
-async def get_anime_list(session: AsyncSession):
-    stmt = select(models.Anime) \
+async def get_anime_list(session: AsyncSession, limit: int, page: int):
+    subq = (
+        select(models.AnimeStartEnd.anime_id)
+        .group_by(models.AnimeStartEnd.anime_id)
+        .order_by(func.min(models.AnimeStartEnd.start_date))
+        .limit(limit)
+        .offset((page - 1) * limit)
+        .subquery()
+    )
+    stmt = (
+        select(models.Anime)
+        .join(subq)
         .options(joinedload(models.Anime.start_end))
+    )
     result = await session.execute(stmt)
     anime_list = result.scalars().unique().all()
-    if anime_list is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="There is no anime yet")
+    if not anime_list:
+        if page == 1:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="There is no anime yet")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Out-of-Range page request")
 
     return anime_list
 
