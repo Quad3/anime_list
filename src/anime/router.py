@@ -35,6 +35,11 @@ async def get_anime_list(
         page: Annotated[int, Query(ge=1)] = 1
 ):
     anime_list = await service.get_anime_list(session=session, limit=limit, page=page)
+    if not anime_list:
+        if page == 1:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="There is no anime yet")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Out-of-Range page request")
+
     return anime_list
 
 
@@ -47,6 +52,9 @@ async def get_anime(
         session=session,
         anime_id=anime_id
     )
+    if anime is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Anime with this id does not exist")
+
     return anime
 
 
@@ -56,9 +64,7 @@ async def update_anime(
         anime_update: AnimeUpdate,
         anime_id: Annotated[uuid.UUID, Path(alias="id")]
 ):
-    anime = await service.get_anime_by_id(session=session, anime_id=anime_id)
-    if anime is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Anime with this id does not exist")
+    anime = await service.get_anime_by_id_or_404(session=session, anime_id=anime_id)
 
     updated_anime = await service.update_anime(
         session=session,
@@ -74,9 +80,7 @@ async def update_anime_start_end(
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
         start_end_update: StartEndUpdate
 ):
-    anime = await service.get_anime_by_id(session=session, anime_id=anime_id)
-    if anime is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Anime with this id does not exist")
+    anime = await service.get_anime_by_id_or_404(session=session, anime_id=anime_id)
 
     updated_start_end = await service.update_anime_start_end(
         session=session,
@@ -92,9 +96,7 @@ async def create_anime_start_end(
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
         start_end_create: StartEndCreate
 ):
-    anime = await service.get_anime_by_id(session=session, anime_id=anime_id)
-    if anime is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Anime with this id does not exist")
+    anime = await service.get_anime_by_id_or_404(session=session, anime_id=anime_id)
 
     start_end = await service.create_anime_start_end(
         session=session,

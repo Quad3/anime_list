@@ -15,10 +15,14 @@ from . import models
 from .utils import is_start_end_valid
 
 
-async def get_anime_by_id(session: AsyncSession, anime_id: uuid.UUID):
+async def get_anime_by_id_or_404(session: AsyncSession, anime_id: uuid.UUID):
     stmt = select(models.Anime).filter(models.Anime.uuid == anime_id)
     result = await session.scalars(stmt)
-    return result.first()
+    anime = result.first()
+    if anime is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Anime with this id does not exist")
+
+    return anime
 
 
 async def create_anime(
@@ -69,10 +73,6 @@ async def get_anime_list(session: AsyncSession, limit: int, page: int):
     )
     result = await session.execute(stmt)
     anime_list = result.scalars().unique().all()
-    if not anime_list:
-        if page == 1:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="There is no anime yet")
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Out-of-Range page request")
 
     return anime_list
 
@@ -82,11 +82,8 @@ async def get_anime(session: AsyncSession, anime_id: uuid.UUID):
         .options(joinedload(models.Anime.start_end)) \
         .filter(models.Anime.uuid == anime_id)
     result = await session.scalars(stmt)
-    anime = result.unique().first()
-    if anime is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Anime not found")
 
-    return anime
+    return result.unique().first()
 
 
 async def update_anime(

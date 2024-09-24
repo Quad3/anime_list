@@ -25,11 +25,20 @@ def anime_in() -> dict[str, str | list[dict[str, str] | dict[str, str]] | int]:
 
 
 @pytest.mark.anyio
-async def test_root(async_client: AsyncClient, test_db: AsyncSession):
+async def test_get_anime_list_empty(async_client: AsyncClient, test_db: AsyncSession):
     response = await async_client.get("/")
     assert response.status_code == 404
     content = response.json()
     assert content["detail"] == "There is no anime yet"
+
+
+@pytest.mark.anyio
+async def test_get_anime_list_page_out_of_range(async_client: AsyncClient, test_db: AsyncSession):
+    await create_random_anime(test_db)
+    await create_random_anime(test_db)
+    response = await async_client.get("/", params={"limit": 1, "page": 3})
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Out-of-Range page request"
 
 
 @pytest.mark.anyio
@@ -64,13 +73,6 @@ async def test_create_anime(
 
 
 @pytest.mark.anyio
-async def test_get_one_anime_fail(async_client: AsyncClient, test_db: AsyncSession):
-    response = await async_client.get(f"/{str(uuid.uuid4())}")
-    assert response.status_code == 404
-    assert response.json() == {"detail": "Anime not found"}
-
-
-@pytest.mark.anyio
 async def test_get_one_anime(async_client: AsyncClient, test_db: AsyncSession):
     anime = await create_random_anime(test_db, start_end_len=3)
     response = await async_client.get(f"/{anime.uuid}")
@@ -84,6 +86,13 @@ async def test_get_one_anime(async_client: AsyncClient, test_db: AsyncSession):
         assert response_start_end["start_date"] == str(anime_start_end.start_date)
         assert response_start_end["end_date"] == str(anime_start_end.end_date)
     assert anime_response["uuid"] == str(anime.uuid)
+
+
+@pytest.mark.anyio
+async def test_get_one_anime_not_found(async_client: AsyncClient, test_db: AsyncSession):
+    response = await async_client.get(f"/{str(uuid.uuid4())}")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Anime with this id does not exist"
 
 
 @pytest.mark.anyio
@@ -101,6 +110,14 @@ async def test_update_anime(async_client: AsyncClient, test_db: AsyncSession):
 
 
 @pytest.mark.anyio
+async def test_update_anime_not_found(async_client: AsyncClient, test_db: AsyncSession):
+    data = {"name": "Updated name", "review": "Updated review"}
+    response = await async_client.patch(f"/{str(uuid.uuid4())}/update", json=data)
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Anime with this id does not exist"
+
+
+@pytest.mark.anyio
 async def test_create_anime_start_end(async_client: AsyncClient, test_db: AsyncSession):
     anime = await create_random_anime(test_db, start_end_len=1)
     data = {"start_date": "2030-01-01"}
@@ -113,12 +130,12 @@ async def test_create_anime_start_end(async_client: AsyncClient, test_db: AsyncS
 
 
 @pytest.mark.anyio
-async def test_update_anime_start_end_fail(async_client: AsyncClient, test_db: AsyncSession):
-    anime = await create_random_anime(test_db, start_end_len=2)
-    data = {"end_date": "2000-01-01"}
-    response = await async_client.patch(f"/{anime.uuid}/update-start-end", json=data)
+async def test_create_anime_start_end_fail(async_client: AsyncClient, test_db: AsyncSession):
+    anime = await create_random_anime(test_db, start_end_len=1)
+    data = {"start_date": "2030-01-01", "end_date": "2029-12-12"}
+    response = await async_client.post(f"/{anime.uuid}/create-start-end", json=data)
     assert response.status_code == 409
-    assert response.json() == {"detail": "End date can't be earlier than start date"}
+    assert response.json()["detail"] == "End date can't be earlier than start date"
 
 
 @pytest.mark.anyio
@@ -129,3 +146,20 @@ async def test_update_anime_start_end(async_client: AsyncClient, test_db: AsyncS
     assert response.status_code == 200
     start_end_response = response.json()
     assert start_end_response["end_date"] == data["end_date"]
+
+
+@pytest.mark.anyio
+async def test_update_anime_start_end_not_found(async_client: AsyncClient, test_db: AsyncSession):
+    data = {"end_date": "2000-01-01"}
+    response = await async_client.patch(f"/{str(uuid.uuid4())}/update-start-end", json=data)
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Anime with this id does not exist"
+
+
+@pytest.mark.anyio
+async def test_update_anime_start_end_fail(async_client: AsyncClient, test_db: AsyncSession):
+    anime = await create_random_anime(test_db, start_end_len=2)
+    data = {"end_date": "2000-01-01"}
+    response = await async_client.patch(f"/{anime.uuid}/update-start-end", json=data)
+    assert response.status_code == 409
+    assert response.json()["detail"] == "End date can't be earlier than start date"
