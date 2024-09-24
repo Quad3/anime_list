@@ -153,7 +153,7 @@ async def test_update_anime_start_end_not_found(async_client: AsyncClient, test_
     data = {"end_date": "2000-01-01"}
     response = await async_client.patch(f"/{str(uuid.uuid4())}/update-start-end", json=data)
     assert response.status_code == 404
-    assert response.json()["detail"] == "Anime with this id does not exist"
+    assert response.json()["detail"] == "Data not found"
 
 
 @pytest.mark.anyio

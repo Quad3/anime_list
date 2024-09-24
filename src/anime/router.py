@@ -80,8 +80,6 @@ async def update_anime_start_end(
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
         start_end_update: StartEndUpdate
 ):
-    anime = await service.get_anime_by_id_or_404(session=session, anime_id=anime_id)
-
     updated_start_end = await service.update_anime_start_end(
         session=session,
         anime_id=anime_id,
