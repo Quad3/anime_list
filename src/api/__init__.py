@@ -1,8 +1,9 @@
 from fastapi import APIRouter
 
 from anime.router import router as anime_router
+from config import API_V1_STR
 
 
-router = APIRouter(prefix="/api/v1")
+router = APIRouter(prefix=API_V1_STR)
 
 router.include_router(anime_router)

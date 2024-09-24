@@ -19,7 +19,7 @@ router = APIRouter(
 )
 
 
-@router.post("/create", response_model=AnimeRead)
+@router.post("/create", status_code=status.HTTP_201_CREATED, response_model=AnimeRead)
 async def create_anime(anime_create: AnimeCreate, session: Annotated[AsyncSession, Depends(get_db)]):
     anime = await service.create_anime(
         session=session,
@@ -86,7 +86,7 @@ async def update_anime_start_end(
     return updated_start_end
 
 
-@router.post("/{id}/create-start-end", response_model=StartEndRead)
+@router.post("/{id}/create-start-end", status_code=status.HTTP_201_CREATED, response_model=StartEndRead)
 async def create_anime_start_end(
         session: Annotated[AsyncSession, Depends(get_db)],
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
