@@ -21,12 +21,14 @@ class Anime(Base):
     state = Column(Enum(State), default=State.WATCHING)
     rate = Column(Integer, nullable=True)
     review = Column(String(4096), nullable=True)
+    user_id = Column(UUID, ForeignKey("users.uuid"))
 
     start_end = relationship(
         "AnimeStartEnd",
         back_populates="anime",
         order_by="AnimeStartEnd.start_date"
     )
+    user = relationship("User", back_populates="anime")
 
 
 class AnimeStartEnd(Base):
