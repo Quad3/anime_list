@@ -1,9 +1,8 @@
 import uuid
-from fastapi import APIRouter, Depends, Path, HTTPException, status, Query
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 
-from database import get_db
+from fastapi import APIRouter, Path, HTTPException, status, Query
+
 from .schemas import (
     AnimeCreate,
     AnimeRead,
@@ -13,14 +12,17 @@ from .schemas import (
     StartEndCreate
 )
 from . import service
+from auth.deps import SessionDep
+
 
 router = APIRouter(
-    tags=["Anime"]
+    tags=["Anime"],
+    prefix="/anime"
 )
 
 
 @router.post("/create", status_code=status.HTTP_201_CREATED, response_model=AnimeRead)
-async def create_anime(anime_create: AnimeCreate, session: Annotated[AsyncSession, Depends(get_db)]):
+async def create_anime(anime_create: AnimeCreate, session: SessionDep):
     anime = await service.create_anime(
         session=session,
         anime_create=anime_create
@@ -30,7 +32,7 @@ async def create_anime(anime_create: AnimeCreate, session: Annotated[AsyncSessio
 
 @router.get("/", response_model=list[AnimeRead])
 async def get_anime_list(
-        session: Annotated[AsyncSession, Depends(get_db)],
+        session: SessionDep,
         limit: Annotated[int, Query(ge=1)] = 5,
         page: Annotated[int, Query(ge=1)] = 1
 ):
@@ -45,7 +47,7 @@ async def get_anime_list(
 
 @router.get("/{id}", response_model=AnimeRead)
 async def get_anime(
-        session: Annotated[AsyncSession, Depends(get_db)],
+        session: SessionDep,
         anime_id: Annotated[uuid.UUID, Path(alias="id")]
 ):
     anime = await service.get_anime(
@@ -60,7 +62,7 @@ async def get_anime(
 
 @router.patch("/{id}/update", response_model=AnimeUpdate)
 async def update_anime(
-        session: Annotated[AsyncSession, Depends(get_db)],
+        session: SessionDep,
         anime_update: AnimeUpdate,
         anime_id: Annotated[uuid.UUID, Path(alias="id")]
 ):
@@ -76,7 +78,7 @@ async def update_anime(
 
 @router.patch("/{id}/update-start-end", response_model=StartEndRead, description="Updates last start_end dates")
 async def update_anime_start_end(
-        session: Annotated[AsyncSession, Depends(get_db)],
+        session: SessionDep,
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
         start_end_update: StartEndUpdate
 ):
@@ -90,7 +92,7 @@ async def update_anime_start_end(
 
 @router.post("/{id}/create-start-end", status_code=status.HTTP_201_CREATED, response_model=StartEndRead)
 async def create_anime_start_end(
-        session: Annotated[AsyncSession, Depends(get_db)],
+        session: SessionDep,
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
         start_end_create: StartEndCreate
 ):
