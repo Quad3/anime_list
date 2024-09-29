@@ -47,6 +47,7 @@ class AnimeRead(AnimeBase):
     )
 
     start_end: list[StartEndRead]
+    user_id: UUID4
     uuid: UUID4
 
 

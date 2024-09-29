@@ -1,12 +1,15 @@
 import uuid
+from datetime import date
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 from httpx import AsyncClient
 
 from anime.models import State
-from .utils.anime import create_random_anime
 from anime.router import router
+from .utils.anime import create_random_anime
+from .utils.utils import user_token_headers
+from auth.deps import get_current_user
 
 
 ANIME_PREFIX = router.prefix
@@ -49,13 +52,18 @@ async def test_get_anime_list_page_out_of_range(async_client: AsyncClient, test_
 async def test_create_anime_fail(
         async_client: AsyncClient,
         test_db: AsyncSession,
-        anime_in: dict
+        anime_in: dict,
 ):
     anime_in["start_end"].append({
         "start_date": "2024-02-02",
         "end_date": "2024-01-01"
     })
-    response = await async_client.post(f"{ANIME_PREFIX}/create", json=anime_in)
+    headers = await user_token_headers(async_client, test_db)
+    response = await async_client.post(
+        f"{ANIME_PREFIX}/create",
+        json=anime_in,
+        headers=headers,
+    )
     assert response.status_code == 409
     assert response.json()["detail"] == "End date can't be earlier than start date"
     anime_list_response = await async_client.get(f"{ANIME_PREFIX}/")
@@ -67,12 +75,19 @@ async def test_create_anime_fail(
 async def test_create_anime(
         async_client: AsyncClient,
         test_db: AsyncSession,
-        anime_in: dict
+        anime_in: dict,
 ):
-    response = await async_client.post(f"{ANIME_PREFIX}/create", json=anime_in)
+    headers = await user_token_headers(async_client, test_db)
+    user = await get_current_user(test_db, headers["Authorization"].split()[1])
+    response = await async_client.post(
+        f"{ANIME_PREFIX}/create",
+        json=anime_in,
+        headers=headers,
+    )
     assert response.status_code == 201
     created_anime = response.json()
-    assert anime_in.items() <= created_anime.items()
+    assert created_anime.items() >= anime_in.items()
+    assert created_anime["user_id"] == str(user.uuid)
     assert "uuid" in created_anime
 
 

@@ -12,12 +12,13 @@ def random_lower_string(k: int = 16) -> str:
     return "".join(random.choices(string.ascii_lowercase, k=k))
 
 
-def random_start_end(k: int = 1) -> list[dict[date | Any]]:
+def random_start_end(k: int = 1, start_date: date = None) -> list[dict[date | Any]]:
     res = []
-    start_date = (
-            date(year=random.randint(2010, 2024), month=1, day=1)
-            + timedelta(days=random.randint(1, 365))
-    )
+    if not start_date:
+        start_date = (
+                date(year=random.randint(2010, 2024), month=1, day=1)
+                + timedelta(days=random.randint(1, 365))
+        )
     for i in range(k):
         end_date = start_date + timedelta(days=random.randint(1, 60))
         res.append({
@@ -30,7 +31,8 @@ def random_start_end(k: int = 1) -> list[dict[date | Any]]:
 
 async def create_random_anime(
         session: AsyncSession,
-        start_end_len: int = 1
+        start_end_len: int = 1,
+        start_date: date = None,
 ) -> Anime:
     anime = Anime(
         name=random_lower_string(),
@@ -41,7 +43,7 @@ async def create_random_anime(
     session.add(anime)
 
     db_start_end = []
-    for start_end in random_start_end(start_end_len):
+    for start_end in random_start_end(start_end_len, start_date):
         db_start_end.append(AnimeStartEnd(
             start_date=start_end["start_date"],
             end_date=start_end["end_date"],

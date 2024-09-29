@@ -12,7 +12,7 @@ from .schemas import (
     StartEndCreate
 )
 from . import service
-from auth.deps import SessionDep
+from auth.deps import SessionDep, CurrentUser
 
 
 router = APIRouter(
@@ -22,9 +22,10 @@ router = APIRouter(
 
 
 @router.post("/create", status_code=status.HTTP_201_CREATED, response_model=AnimeRead)
-async def create_anime(anime_create: AnimeCreate, session: SessionDep):
+async def create_anime(anime_create: AnimeCreate, session: SessionDep, current_user: CurrentUser):
     anime = await service.create_anime(
         session=session,
+        current_user=current_user,
         anime_create=anime_create
     )
     return anime

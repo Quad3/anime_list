@@ -14,6 +14,7 @@ from .schemas import (
 )
 from . import models
 from .utils import is_start_end_valid
+from auth.models import User
 
 
 async def get_anime_by_id_or_404(session: AsyncSession, anime_id: uuid.UUID):
@@ -28,14 +29,15 @@ async def get_anime_by_id_or_404(session: AsyncSession, anime_id: uuid.UUID):
 
 async def create_anime(
         session: AsyncSession,
+        current_user: User,
         anime_create: AnimeCreate
 ) -> models.Anime:
     anime_create_dump = anime_create.model_dump()
     anime_start_end = anime_create_dump.pop("start_end")
 
-    anime = models.Anime(**anime_create_dump)
+    anime = models.Anime(**anime_create_dump, user_id=current_user.uuid)
 
-    async with session.begin():
+    async with session.begin_nested():
         session.add(anime)
 
         db_start_end = []
@@ -53,6 +55,7 @@ async def create_anime(
             anime.start_end.append(db_start_end[-1])
 
         session.add_all(db_start_end)
+        await session.commit()
 
     anime.start_end = db_start_end
     return anime
