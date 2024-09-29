@@ -5,7 +5,7 @@ from api import router as api_router
 
 
 app = FastAPI(
-    title="My Anime List"
+    title="My Anime List",
 )
 
 app.include_router(api_router)

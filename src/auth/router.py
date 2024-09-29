@@ -13,7 +13,7 @@ from security import create_access_token
 
 router = APIRouter(
     tags=["Anime"],
-    prefix="/users"
+    prefix="/users",
 )
 
 
@@ -23,12 +23,12 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], sess
     if not user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid username or password"
+            detail="Invalid username or password",
         )
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Inactive user"
+            detail="Inactive user",
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
@@ -45,7 +45,7 @@ async def register_user(session: SessionDep, user_create: UserCreate):
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The user with this username already exists in the system"
+            detail="The user with this username already exists in the system",
         )
     user = await create_user(session, user_create)
     return user

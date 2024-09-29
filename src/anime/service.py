@@ -10,7 +10,7 @@ from .schemas import (
     AnimeCreate,
     AnimeUpdate,
     StartEndUpdate,
-    StartEndCreate
+    StartEndCreate,
 )
 from . import models
 from .utils import is_start_end_valid
@@ -30,7 +30,7 @@ async def get_anime_by_id_or_404(session: AsyncSession, anime_id: uuid.UUID):
 async def create_anime(
         session: AsyncSession,
         current_user: User,
-        anime_create: AnimeCreate
+        anime_create: AnimeCreate,
 ) -> models.Anime:
     anime_create_dump = anime_create.model_dump()
     anime_start_end = anime_create_dump.pop("start_end")
@@ -50,7 +50,7 @@ async def create_anime(
             db_start_end.append(models.AnimeStartEnd(
                 start_date=start_date,
                 end_date=end_date,
-                anime_id=anime.uuid)
+                anime_id=anime.uuid),
             )
             anime.start_end.append(db_start_end[-1])
 
@@ -82,9 +82,11 @@ async def get_anime_list(session: AsyncSession, limit: int, page: int):
 
 
 async def get_anime(session: AsyncSession, anime_id: uuid.UUID):
-    stmt = select(models.Anime) \
-        .options(joinedload(models.Anime.start_end)) \
+    stmt = (
+        select(models.Anime)
+        .options(joinedload(models.Anime.start_end))
         .filter(models.Anime.uuid == anime_id)
+    )
     result = await session.scalars(stmt)
 
     return result.unique().first()
@@ -93,7 +95,7 @@ async def get_anime(session: AsyncSession, anime_id: uuid.UUID):
 async def update_anime(
         session: AsyncSession,
         anime_update: AnimeUpdate,
-        anime: models.Anime
+        anime: models.Anime,
 ):
     anime_update_data = anime_update.model_dump(exclude_none=True)
     for key, value in anime_update_data.items():
@@ -108,11 +110,13 @@ async def update_anime(
 async def update_anime_start_end(
         session: AsyncSession,
         start_end_update: StartEndUpdate,
-        anime_id: uuid.UUID
+        anime_id: uuid.UUID,
 ):
-    stmt = select(models.AnimeStartEnd) \
-        .filter(models.AnimeStartEnd.anime_id == anime_id) \
+    stmt = (
+        select(models.AnimeStartEnd)
+        .filter(models.AnimeStartEnd.anime_id == anime_id)
         .order_by(desc(models.AnimeStartEnd.start_date))
+    )
     result = await session.scalars(stmt)
     db_start_end = result.unique().first()
 
@@ -135,7 +139,7 @@ async def update_anime_start_end(
 async def create_anime_start_end(
         session: AsyncSession,
         start_end_create: StartEndCreate,
-        anime: models.Anime
+        anime: models.Anime,
 ):
     start_end = models.AnimeStartEnd(**start_end_create.model_dump(), anime_id=anime.uuid)
     if start_end.start_date and start_end.end_date:

@@ -9,7 +9,7 @@ from .schemas import UserCreate
 async def create_user(session: AsyncSession, user_create: UserCreate) -> User:
     db_obj = User(
         username=user_create.username,
-        password=get_password_hash(user_create.password)
+        password=get_password_hash(user_create.password),
     )
     session.add(db_obj)
     await session.commit()

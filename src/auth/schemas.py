@@ -8,7 +8,7 @@ class UserBase(BaseModel):
 
 class UserRead(UserBase):
     model_config = ConfigDict(
-        from_attributes=True
+        from_attributes=True,
     )
 
     uuid: UUID4

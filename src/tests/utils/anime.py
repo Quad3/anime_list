@@ -23,7 +23,7 @@ def random_start_end(k: int = 1, start_date: date = None) -> list[dict[date | An
         end_date = start_date + timedelta(days=random.randint(1, 60))
         res.append({
             "start_date": start_date,
-            "end_date": end_date
+            "end_date": end_date,
         })
         start_date = end_date + timedelta(days=random.randint(90, 180))
     return res
@@ -38,7 +38,7 @@ async def create_random_anime(
         name=random_lower_string(),
         rate=random.randint(1, 10),
         state=State.WATCHED,
-        review=random_lower_string(256)
+        review=random_lower_string(256),
     )
     session.add(anime)
 
@@ -47,7 +47,7 @@ async def create_random_anime(
         db_start_end.append(AnimeStartEnd(
             start_date=start_end["start_date"],
             end_date=start_end["end_date"],
-            anime_id=anime.uuid
+            anime_id=anime.uuid,
         ))
 
     session.add_all(db_start_end)

@@ -29,7 +29,7 @@ async def get_current_user(session: SessionDep, token: TokenDep):
     except (InvalidTokenError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate credentials"
+            detail="Could not validate credentials",
         )
     user = await session.get(User, token_data.sub)
     if not user:
@@ -46,6 +46,6 @@ def get_current_active_superuser(current_user: CurrentUser):
     if not current_user.is_superuser:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="The user doesn't have enough privileges"
+            detail="The user doesn't have enough privileges",
         )
     return current_user
