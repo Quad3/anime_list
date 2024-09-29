@@ -7,6 +7,7 @@ from .schemas import (
     AnimeCreate,
     AnimeRead,
     AnimeUpdate,
+    AnimeListRead,
     StartEndUpdate,
     StartEndRead,
     StartEndCreate,
@@ -39,33 +40,37 @@ async def create_anime(
     return anime
 
 
-@router.get("/", response_model=list[AnimeRead])
+@router.get("/", response_model=AnimeListRead)
 async def get_anime_list(
         session: SessionDep,
+        current_user: CurrentUser,
         limit: Annotated[int, Query(ge=1)] = 5,
         page: Annotated[int, Query(ge=1)] = 1,
 ):
-    anime_list = await service.get_anime_list(session=session, limit=limit, page=page)
-    if not anime_list:
-        if page == 1:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="There is no anime yet")
+    anime_list = await service.get_anime_list(
+        session=session,
+        current_user=current_user,
+        limit=limit,
+        page=page,
+    )
+    if not anime_list["count"]:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="There is no anime yet")
+    if not anime_list["data"]:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Out-of-Range page request")
-
     return anime_list
 
 
 @router.get("/{id}", response_model=AnimeRead)
 async def get_anime(
         session: SessionDep,
+        current_user: CurrentUser,
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
 ):
     anime = await service.get_anime(
         session=session,
+        current_user=current_user,
         anime_id=anime_id,
     )
-    if anime is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Anime with this id does not exist")
-
     return anime
 
 

@@ -1,3 +1,4 @@
+import uuid
 import random
 import string
 from datetime import date, timedelta
@@ -33,12 +34,14 @@ async def create_random_anime(
         session: AsyncSession,
         start_end_len: int = 1,
         start_date: date = None,
+        user_id: uuid.UUID = None,
 ) -> Anime:
     anime = Anime(
         name=random_lower_string(),
         rate=random.randint(1, 10),
         state=State.WATCHED,
         review=random_lower_string(256),
+        user_id=user_id,
     )
     session.add(anime)
 
@@ -54,5 +57,4 @@ async def create_random_anime(
     anime.start_end = db_start_end
     await session.commit()
     await session.refresh(anime)
-
     return anime

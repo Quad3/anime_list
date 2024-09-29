@@ -33,7 +33,11 @@ def anime_in() -> dict[str, str | list[dict[str, str] | dict[str, str]] | int]:
 
 @pytest.mark.anyio
 async def test_get_anime_list_empty(async_client: AsyncClient, test_db: AsyncSession):
-    response = await async_client.get(f"{ANIME_PREFIX}/")
+    headers = await user_token_headers(async_client, test_db)
+    response = await async_client.get(
+        f"{ANIME_PREFIX}/",
+        headers=headers,
+    )
     assert response.status_code == 404
     content = response.json()
     assert content["detail"] == "There is no anime yet"
@@ -41,11 +45,51 @@ async def test_get_anime_list_empty(async_client: AsyncClient, test_db: AsyncSes
 
 @pytest.mark.anyio
 async def test_get_anime_list_page_out_of_range(async_client: AsyncClient, test_db: AsyncSession):
-    await create_random_anime(test_db)
-    await create_random_anime(test_db)
-    response = await async_client.get(f"{ANIME_PREFIX}/", params={"limit": 1, "page": 3})
+    headers = await user_token_headers(async_client, test_db)
+    user = await get_current_user(test_db, headers["Authorization"].split()[1])
+    await create_random_anime(test_db, user_id=user.uuid)
+    await create_random_anime(test_db, user_id=user.uuid)
+    response = await async_client.get(
+        f"{ANIME_PREFIX}/",
+        params={"limit": 1, "page": 3},
+        headers=headers,
+    )
     assert response.status_code == 404
     assert response.json()["detail"] == "Out-of-Range page request"
+
+
+@pytest.mark.anyio
+async def test_get_anime_list(async_client: AsyncClient, test_db: AsyncSession):
+    headers = await user_token_headers(async_client, test_db)
+    user = await get_current_user(test_db, headers["Authorization"].split()[1])
+    anime1 = await create_random_anime(
+        test_db,
+        start_date=date(year=2010, month=1, day=1),
+        user_id=user.uuid,
+    )
+    anime2 = await create_random_anime(
+        test_db,
+        start_date=date(year=2014, month=1, day=1),
+        start_end_len=2,
+        user_id=user.uuid,
+    )
+    response = await async_client.get(
+        f"{ANIME_PREFIX}/",
+        params={"limit": 5, "page": 1},
+        headers=headers,
+    )
+    assert response.status_code == 200
+    content = response.json()
+    assert content["count"] != 0
+    for cont, anime in zip(content["data"], [anime1, anime2]):
+        assert cont["uuid"] == str(anime.uuid)
+        assert cont["name"] == anime.name
+        assert cont["rate"] == anime.rate
+        assert cont["review"] == anime.review
+        assert cont["state"] == anime.state
+        for content_start_end, anime_start_end in zip(cont["start_end"], anime.start_end):
+            assert content_start_end["start_date"] == str(anime_start_end.start_date)
+            assert content_start_end["end_date"] == str(anime_start_end.end_date)
 
 
 @pytest.mark.anyio
@@ -66,7 +110,10 @@ async def test_create_anime_fail(
     )
     assert response.status_code == 409
     assert response.json()["detail"] == "End date can't be earlier than start date"
-    anime_list_response = await async_client.get(f"{ANIME_PREFIX}/")
+    anime_list_response = await async_client.get(
+        f"{ANIME_PREFIX}/",
+        headers=headers,
+    )
     assert anime_list_response.status_code == 404
     assert anime_list_response.json()["detail"] == "There is no anime yet"
 
@@ -93,8 +140,13 @@ async def test_create_anime(
 
 @pytest.mark.anyio
 async def test_get_one_anime(async_client: AsyncClient, test_db: AsyncSession):
-    anime = await create_random_anime(test_db, start_end_len=3)
-    response = await async_client.get(f"{ANIME_PREFIX}/{anime.uuid}")
+    headers = await user_token_headers(async_client, test_db)
+    user = await get_current_user(test_db, headers["Authorization"].split()[1])
+    anime = await create_random_anime(test_db, start_end_len=3, user_id=user.uuid)
+    response = await async_client.get(
+        f"{ANIME_PREFIX}/{anime.uuid}",
+        headers=headers,
+    )
     assert response.status_code == 200
     anime_response = response.json()
     assert anime_response["name"] == anime.name
@@ -105,11 +157,16 @@ async def test_get_one_anime(async_client: AsyncClient, test_db: AsyncSession):
         assert response_start_end["start_date"] == str(anime_start_end.start_date)
         assert response_start_end["end_date"] == str(anime_start_end.end_date)
     assert anime_response["uuid"] == str(anime.uuid)
+    assert anime_response["user_id"] == str(user.uuid)
 
 
 @pytest.mark.anyio
 async def test_get_one_anime_not_found(async_client: AsyncClient, test_db: AsyncSession):
-    response = await async_client.get(f"{ANIME_PREFIX}/{str(uuid.uuid4())}")
+    headers = await user_token_headers(async_client, test_db)
+    response = await async_client.get(
+        f"{ANIME_PREFIX}/{str(uuid.uuid4())}",
+        headers=headers,
+    )
     assert response.status_code == 404
     assert response.json()["detail"] == "Anime with this id does not exist"
 

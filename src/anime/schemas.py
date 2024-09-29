@@ -51,6 +51,11 @@ class AnimeRead(AnimeBase):
     uuid: UUID4
 
 
+class AnimeListRead(BaseModel):
+    data: list[AnimeRead]
+    count: int
+
+
 class AnimeUpdate(AnimeBase):
     name: str | None = None
     state: State | None = None
