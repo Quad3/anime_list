@@ -120,10 +120,13 @@ async def update_anime_start_end(
 )
 async def create_anime_start_end(
         session: SessionDep,
+        current_user: CurrentUser,
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
         start_end_create: StartEndCreate,
 ):
     anime = await service.get_anime_by_id_or_404(session=session, anime_id=anime_id)
+    if anime.user_id != current_user.uuid:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Not enough permissions")
 
     start_end = await service.create_anime_start_end(
         session=session,

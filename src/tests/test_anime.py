@@ -207,9 +207,15 @@ async def test_update_anime_not_found(async_client: AsyncClient, test_db: AsyncS
 
 @pytest.mark.anyio
 async def test_create_anime_start_end(async_client: AsyncClient, test_db: AsyncSession):
-    anime = await create_random_anime(test_db, start_end_len=1)
+    headers = await user_token_headers(async_client, test_db)
+    user = await get_current_user(test_db, headers["Authorization"].split()[1])
+    anime = await create_random_anime(test_db, start_end_len=1, user_id=user.uuid)
     data = {"start_date": "2030-01-01"}
-    response = await async_client.post(f"{ANIME_PREFIX}/{anime.uuid}/create-start-end", json=data)
+    response = await async_client.post(
+        f"{ANIME_PREFIX}/{anime.uuid}/create-start-end",
+        json=data,
+        headers=headers,
+    )
     assert response.status_code == 201
     start_end_response = response.json()
     assert len(start_end_response) == 2
@@ -219,11 +225,46 @@ async def test_create_anime_start_end(async_client: AsyncClient, test_db: AsyncS
 
 @pytest.mark.anyio
 async def test_create_anime_start_end_fail(async_client: AsyncClient, test_db: AsyncSession):
-    anime = await create_random_anime(test_db, start_end_len=1)
+    headers = await user_token_headers(async_client, test_db)
+    user = await get_current_user(test_db, headers["Authorization"].split()[1])
+    anime = await create_random_anime(test_db, start_end_len=1, user_id=user.uuid)
     data = {"start_date": "2030-01-01", "end_date": "2029-12-12"}
-    response = await async_client.post(f"{ANIME_PREFIX}/{anime.uuid}/create-start-end", json=data)
+    response = await async_client.post(
+        f"{ANIME_PREFIX}/{anime.uuid}/create-start-end",
+        json=data,
+        headers=headers,
+    )
     assert response.status_code == 409
     assert response.json()["detail"] == "End date can't be earlier than start date"
+
+
+@pytest.mark.anyio
+async def test_create_anime_start_end_not_enough_permissions(async_client: AsyncClient, test_db: AsyncSession):
+    headers = await user_token_headers(async_client, test_db)
+    user = await create_random_user(test_db)
+    anime = await create_random_anime(test_db, start_end_len=1, user_id=user.uuid)
+    data = {"start_date": "2030-01-01", "end_date": "2030-12-12"}
+    response = await async_client.post(
+        f"{ANIME_PREFIX}/{anime.uuid}/create-start-end",
+        json=data,
+        headers=headers,
+    )
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Not enough permissions"
+
+
+@pytest.mark.anyio
+async def test_create_anime_start_end_not_found(async_client: AsyncClient, test_db: AsyncSession):
+    headers = await user_token_headers(async_client, test_db)
+    user = await get_current_user(test_db, headers["Authorization"].split()[1])
+    data = {"start_date": "2030-01-01", "end_date": "2030-12-12"}
+    response = await async_client.post(
+        f"{ANIME_PREFIX}/{uuid.uuid4()}/create-start-end",
+        json=data,
+        headers=headers,
+    )
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Anime with this id does not exist"
 
 
 @pytest.mark.anyio
