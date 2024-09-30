@@ -15,7 +15,7 @@ from config import DOMAIN, API_V1_STR, DB_USER, DB_PASS, DB_HOST, DB_PORT
 from database import Base, get_db
 
 
-DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/testdb"
+DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/postgres"
 test_engine = create_async_engine(
     DATABASE_URL,
     future=True,
