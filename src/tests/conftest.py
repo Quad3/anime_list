@@ -11,15 +11,15 @@ from alembic.operations import Operations
 from alembic.script import ScriptDirectory
 
 from main import app
-from config import DOMAIN, API_V1_STR, DB_USER, DB_PASS, DB_HOST, DB_PORT
+from config import DOMAIN, API_V1_STR, TEST_DB_USER, TEST_DB_PASS, TEST_DB_HOST, TEST_DB_PORT, TEST_DB_NAME
 from database import Base, get_db
 
 
-DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/testdb"
+DATABASE_URL = f"postgresql+asyncpg://{TEST_DB_USER}:{TEST_DB_PASS}@{TEST_DB_HOST}:{TEST_DB_PORT}/{TEST_DB_NAME}"
 test_engine = create_async_engine(
     DATABASE_URL,
     future=True,
-    echo=True
+    echo=True,
 )
 
 
