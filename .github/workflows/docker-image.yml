@@ -18,13 +18,9 @@ jobs:
       uses: hoverkraft-tech/compose-action@v2.0.1
       with:
         compose-file: "./docker-compose.yml"
-
-  pytest:
-    name: Unit Testing
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
+        services: |
+          db
+    # pytest
     - name: Set up Python 3.10
       uses: actions/setup-python@v1
       with:
