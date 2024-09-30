@@ -100,11 +100,13 @@ async def update_anime(
 )
 async def update_anime_start_end(
         session: SessionDep,
+        current_user: CurrentUser,
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
         start_end_update: StartEndUpdate,
 ):
     updated_start_end = await service.update_anime_start_end(
         session=session,
+        current_user=current_user,
         anime_id=anime_id,
         start_end_update=start_end_update,
     )

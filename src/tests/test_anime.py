@@ -9,6 +9,7 @@ from anime.models import State
 from anime.router import router
 from .utils.anime import create_random_anime
 from .utils.utils import user_token_headers
+from .utils.auth import create_random_user
 from auth.deps import get_current_user
 
 
@@ -227,26 +228,73 @@ async def test_create_anime_start_end_fail(async_client: AsyncClient, test_db: A
 
 @pytest.mark.anyio
 async def test_update_anime_start_end(async_client: AsyncClient, test_db: AsyncSession):
-    anime = await create_random_anime(test_db, start_end_len=3)
+    headers = await user_token_headers(async_client, test_db)
+    user = await get_current_user(test_db, headers["Authorization"].split()[1])
+    anime = await create_random_anime(test_db, start_end_len=3, user_id=user.uuid)
     data = {"end_date": "2030-01-01"}
-    response = await async_client.patch(f"{ANIME_PREFIX}/{anime.uuid}/update-start-end", json=data)
+    response = await async_client.patch(
+        f"{ANIME_PREFIX}/{anime.uuid}/update-start-end",
+        json=data,
+        headers=headers,
+    )
     assert response.status_code == 200
     start_end_response = response.json()
     assert start_end_response["end_date"] == data["end_date"]
 
 
 @pytest.mark.anyio
-async def test_update_anime_start_end_not_found(async_client: AsyncClient, test_db: AsyncSession):
+async def test_update_anime_start_end_data_not_found(async_client: AsyncClient, test_db: AsyncSession):
+    headers = await user_token_headers(async_client, test_db)
+    user = await get_current_user(test_db, headers["Authorization"].split()[1])
+    anime = await create_random_anime(test_db, start_end_len=0, user_id=user.uuid)
     data = {"end_date": "2000-01-01"}
-    response = await async_client.patch(f"{ANIME_PREFIX}/{str(uuid.uuid4())}/update-start-end", json=data)
+    response = await async_client.patch(
+        f"{ANIME_PREFIX}/{anime.uuid}/update-start-end",
+        json=data,
+        headers=headers,
+    )
     assert response.status_code == 404
     assert response.json()["detail"] == "Data not found"
 
 
 @pytest.mark.anyio
-async def test_update_anime_start_end_fail(async_client: AsyncClient, test_db: AsyncSession):
-    anime = await create_random_anime(test_db, start_end_len=2)
+async def test_update_anime_start_end_anime_not_found(async_client: AsyncClient, test_db: AsyncSession):
+    headers = await user_token_headers(async_client, test_db)
     data = {"end_date": "2000-01-01"}
-    response = await async_client.patch(f"{ANIME_PREFIX}/{anime.uuid}/update-start-end", json=data)
+    response = await async_client.patch(
+        f"{ANIME_PREFIX}/{str(uuid.uuid4())}/update-start-end",
+        json=data,
+        headers=headers,
+    )
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Anime with this id does not exist"
+
+
+@pytest.mark.anyio
+async def test_update_anime_start_end_fail(async_client: AsyncClient, test_db: AsyncSession):
+    headers = await user_token_headers(async_client, test_db)
+    user = await get_current_user(test_db, headers["Authorization"].split()[1])
+    anime = await create_random_anime(test_db, start_end_len=2, user_id=user.uuid)
+    data = {"end_date": "2000-01-01"}
+    response = await async_client.patch(
+        f"{ANIME_PREFIX}/{anime.uuid}/update-start-end",
+        json=data,
+        headers=headers,
+    )
     assert response.status_code == 409
     assert response.json()["detail"] == "End date can't be earlier than start date"
+
+
+@pytest.mark.anyio
+async def test_update_anime_start_end_not_enough_permissions(async_client: AsyncClient, test_db: AsyncSession):
+    headers = await user_token_headers(async_client, test_db)
+    user = await create_random_user(test_db)
+    anime = await create_random_anime(test_db, start_end_len=2, user_id=user.uuid)
+    data = {"end_date": "2000-01-01"}
+    response = await async_client.patch(
+        f"{ANIME_PREFIX}/{anime.uuid}/update-start-end",
+        json=data,
+        headers=headers,
+    )
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Not enough permissions"

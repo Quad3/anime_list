@@ -124,19 +124,24 @@ async def update_anime(
 
 async def update_anime_start_end(
         session: AsyncSession,
+        current_user: User,
         start_end_update: StartEndUpdate,
         anime_id: uuid.UUID,
 ):
     stmt = (
-        select(models.AnimeStartEnd)
-        .filter(models.AnimeStartEnd.anime_id == anime_id)
-        .order_by(desc(models.AnimeStartEnd.start_date))
+        select(models.Anime)
+        .options(joinedload(models.Anime.start_end))
+        .filter(models.Anime.uuid == anime_id)
     )
     result = await session.scalars(stmt)
-    db_start_end = result.unique().first()
-
-    if not db_start_end:
+    anime: models.Anime = result.unique().first()
+    if not anime:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Anime with this id does not exist")
+    if anime.user_id != current_user.uuid:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Not enough permissions")
+    if not anime.start_end:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Data not found")
+    db_start_end: models.AnimeStartEnd = anime.start_end[-1]
 
     start_date = start_end_update.start_date if start_end_update.start_date else db_start_end.start_date
     end_date = start_end_update.end_date if start_end_update.end_date else db_start_end.end_date
@@ -147,6 +152,7 @@ async def update_anime_start_end(
 
     session.add(db_start_end)
     await session.commit()
+    await session.refresh(db_start_end)
     return db_start_end
 
 

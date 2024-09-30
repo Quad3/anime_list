@@ -1,3 +1,6 @@
+import random
+import string
+
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,3 +30,7 @@ async def user_token_headers(
     user_create = UserCreate(**credentials)
     await create_user(test_db, user_create)
     return await get_user_token_headers(async_client, user_create)
+
+
+def random_lower_string() -> str:
+    return "".join(random.choices(string.ascii_lowercase, k=32))
