@@ -19,7 +19,7 @@ jobs:
       with:
         compose-file: "./docker-compose.yml"
         services: |
-          db
+          testdb
     # pytest
     - name: Set up Python 3.10
       uses: actions/setup-python@v1
