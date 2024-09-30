@@ -173,9 +173,15 @@ async def test_get_one_anime_not_found(async_client: AsyncClient, test_db: Async
 
 @pytest.mark.anyio
 async def test_update_anime(async_client: AsyncClient, test_db: AsyncSession):
-    anime = await create_random_anime(test_db, start_end_len=2)
+    headers = await user_token_headers(async_client, test_db)
+    user = await get_current_user(test_db, headers["Authorization"].split()[1])
+    anime = await create_random_anime(test_db, start_end_len=2, user_id=user.uuid)
     data = {"name": "Updated name", "review": "Updated review"}
-    response = await async_client.patch(f"{ANIME_PREFIX}/{anime.uuid}/update", json=data)
+    response = await async_client.patch(
+        f"{ANIME_PREFIX}/{anime.uuid}/update",
+        json=data,
+        headers=headers,
+    )
     assert response.status_code == 200
     anime_response = response.json()
     assert anime_response["name"] == data["name"]
@@ -187,8 +193,13 @@ async def test_update_anime(async_client: AsyncClient, test_db: AsyncSession):
 
 @pytest.mark.anyio
 async def test_update_anime_not_found(async_client: AsyncClient, test_db: AsyncSession):
+    headers = await user_token_headers(async_client, test_db)
     data = {"name": "Updated name", "review": "Updated review"}
-    response = await async_client.patch(f"{ANIME_PREFIX}/{str(uuid.uuid4())}/update", json=data)
+    response = await async_client.patch(
+        f"{ANIME_PREFIX}/{str(uuid.uuid4())}/update",
+        json=data,
+        headers=headers,
+    )
     assert response.status_code == 404
     assert response.json()["detail"] == "Anime with this id does not exist"
 

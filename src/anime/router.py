@@ -18,7 +18,7 @@ from auth.deps import SessionDep, CurrentUser
 
 router = APIRouter(
     tags=["Anime"],
-    prefix="/anime"
+    prefix="/anime",
 )
 
 
@@ -77,10 +77,13 @@ async def get_anime(
 @router.patch("/{id}/update", response_model=AnimeUpdate)
 async def update_anime(
         session: SessionDep,
+        current_user: CurrentUser,
         anime_update: AnimeUpdate,
         anime_id: Annotated[uuid.UUID, Path(alias="id")],
 ):
     anime = await service.get_anime_by_id_or_404(session=session, anime_id=anime_id)
+    if anime.user_id != current_user.uuid:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Not enough permissions")
 
     updated_anime = await service.update_anime(
         session=session,

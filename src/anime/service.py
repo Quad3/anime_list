@@ -118,6 +118,7 @@ async def update_anime(
 
     session.add(anime)
     await session.commit()
+    await session.refresh(anime)
     return anime
 
 
