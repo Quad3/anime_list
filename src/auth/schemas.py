@@ -4,6 +4,8 @@ from pydantic.types import UUID4
 
 class UserBase(BaseModel):
     username: str = Field(max_length=128)
+    is_active: bool = True
+    is_superuser: bool = False
 
 
 class UserRead(UserBase):
