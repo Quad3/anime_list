@@ -3,7 +3,7 @@ import uuid
 import sqlalchemy.sql.functions as func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import select, desc, func
+from sqlalchemy.sql import select, func
 from fastapi import HTTPException, status
 
 from .schemas import (
@@ -13,7 +13,7 @@ from .schemas import (
     StartEndCreate,
 )
 from . import models
-from .utils import is_start_end_valid
+from .utils import is_start_end_valid, fill_start_end
 from auth.models import User
 
 
@@ -40,24 +40,12 @@ async def create_anime(
     async with session.begin_nested():
         session.add(anime)
 
-        db_start_end = []
-        for start_end in anime_start_end:
-            start_date = start_end.get("start_date")
-            end_date = start_end.get("end_date")
-            if start_date and end_date:
-                is_start_end_valid(start_date, end_date)
-
-            db_start_end.append(models.AnimeStartEnd(
-                start_date=start_date,
-                end_date=end_date,
-                anime_id=anime.uuid),
-            )
-            anime.start_end.append(db_start_end[-1])
+        db_start_end = fill_start_end(anime_start_end, anime.uuid)
+        anime.start_end = db_start_end
 
         session.add_all(db_start_end)
         await session.commit()
 
-    anime.start_end = db_start_end
     return anime
 
 

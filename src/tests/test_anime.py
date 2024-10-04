@@ -27,7 +27,11 @@ def anime_in() -> dict[str, str | list[dict[str, str] | dict[str, str]] | int]:
             {
                 "start_date": "2020-01-01",
                 "end_date": "2020-03-03"
-            }
+            },
+            {
+                "start_date": "2021-02-02",
+                "end_date": "2021-02-12"
+            },
         ]
     }
 
