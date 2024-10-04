@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from config import ACCESS_TOKEN_EXPIRE_MINUTES
 from .deps import SessionDep
-from .schemas import UserRead, UserCreate, Token
+from .schemas import UserRead, UserCreate, UserRegister, Token
 from .service import get_user_by_username, create_user, authenticate
 from security import create_access_token
 
@@ -40,12 +40,18 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], sess
 
 
 @router.post("/signup", response_model=UserRead)
-async def register_user(session: SessionDep, user_create: UserCreate):
-    db_user = await get_user_by_username(session, user_create.username)
+async def register_user(session: SessionDep, user_register: UserRegister):
+    db_user = await get_user_by_username(session, user_register.username)
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="The user with this username already exists in the system",
         )
+
+    user_create = UserCreate(
+        **user_register.model_dump(),
+        is_active=True,
+        is_superuser=False,
+    )
     user = await create_user(session, user_create)
     return user

@@ -8,6 +8,11 @@ class UserBase(BaseModel):
     is_superuser: bool = False
 
 
+class UserRegister(BaseModel):
+    username: str = Field(max_length=128)
+    password: str = Field(min_length=8, max_length=40)
+
+
 class UserRead(UserBase):
     model_config = ConfigDict(
         from_attributes=True,
