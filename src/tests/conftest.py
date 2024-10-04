@@ -3,7 +3,6 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.sql import text
-from sqlalchemy_utils import database_exists, create_database
 from asyncpg import Connection
 from alembic.config import Config
 from alembic.migration import MigrationContext
@@ -11,15 +10,15 @@ from alembic.operations import Operations
 from alembic.script import ScriptDirectory
 
 from main import app
-from config import DOMAIN, API_V1_STR, DB_USER, DB_PASS, DB_HOST, DB_PORT
+from config import DOMAIN, API_V1_STR, TEST_DB_USER, TEST_DB_PASS, TEST_DB_HOST, TEST_DB_PORT, TEST_DB_NAME
 from database import Base, get_db
 
 
-DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/testdb"
+DATABASE_URL = f"postgresql+asyncpg://{TEST_DB_USER}:{TEST_DB_PASS}@{TEST_DB_HOST}:{TEST_DB_PORT}/{TEST_DB_NAME}"
 test_engine = create_async_engine(
     DATABASE_URL,
     future=True,
-    echo=True
+    echo=True,
 )
 
 
@@ -71,11 +70,11 @@ async def test_db():
     )
 
     async with test_session() as session:
-        # await session.begin()
+        await session.begin()
 
         yield session
 
-        # await session.rollback()
+        await session.rollback()
 
         for table in reversed(Base.metadata.sorted_tables):
             await session.execute(text(f"TRUNCATE {table.name} CASCADE;"))
