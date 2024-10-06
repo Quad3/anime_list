@@ -44,11 +44,10 @@ async def create_anime(
     async with session.begin_nested():
         session.add(anime)
 
-        if start_end_in:
-            db_start_end = fill_start_end_if_valid(start_end_in, anime.uuid)
-            anime.start_end = db_start_end
-        else:
-            anime.start_end = []
+        db_start_end = fill_start_end_if_valid(start_end_in)
+        for start_end in db_start_end:
+            start_end.anime_id = anime.uuid
+        anime.start_end = db_start_end
 
         await session.commit()
 
