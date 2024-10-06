@@ -7,7 +7,7 @@ from .models import AnimeStartEnd, State
 from .schemas import StartEndBase
 
 
-def is_start_end_valid(start_date: date, end_date: date) -> bool:
+def is_start_end_valid_or_raise(start_date: date, end_date: date) -> bool:
     if start_date > end_date:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -25,7 +25,7 @@ def fill_start_end_if_valid(source: list[StartEndBase] | None) -> list[AnimeStar
         start_date = start_end.get("start_date")
         end_date = start_end.get("end_date")
         if start_date and end_date:
-            is_start_end_valid(start_date, end_date)
+            is_start_end_valid_or_raise(start_date, end_date)
 
         destination.append(AnimeStartEnd(
             start_date=start_date,

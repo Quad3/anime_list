@@ -13,7 +13,7 @@ from .schemas import (
     StartEndCreate,
 )
 from . import models
-from .utils import is_start_end_valid, fill_start_end_if_valid, determine_anime_state
+from .utils import is_start_end_valid_or_raise, fill_start_end_if_valid, determine_anime_state
 from auth.models import User
 
 
@@ -138,7 +138,7 @@ async def update_anime_start_end(
 
     start_date = start_end_update.start_date if start_end_update.start_date else db_start_end.start_date
     end_date = start_end_update.end_date if start_end_update.end_date else db_start_end.end_date
-    is_start_end_valid(start_date, end_date)
+    is_start_end_valid_or_raise(start_date, end_date)
 
     for key, value in start_end_update.model_dump(exclude_none=True).items():
         setattr(db_start_end, key, value)
@@ -156,7 +156,7 @@ async def create_anime_start_end(
 ):
     start_end = models.AnimeStartEnd(**start_end_create.model_dump(), anime_id=anime.uuid)
     if start_end.start_date and start_end.end_date:
-        is_start_end_valid(start_end.start_date, start_end.end_date)
+        is_start_end_valid_or_raise(start_end.start_date, start_end.end_date)
     session.add(start_end)
     await session.commit()
     return start_end
