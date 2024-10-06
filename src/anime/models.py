@@ -11,6 +11,7 @@ class State(str, enum.Enum):
     WATCHING = "WATCHING"
     WATCHED = "WATCHED"
     DROPPED = "DROPPED"
+    PLAN_TO_WATCH = "PLAN_TO_WATCH"
 
 
 class Anime(Base):
