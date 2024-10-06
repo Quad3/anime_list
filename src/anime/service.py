@@ -13,7 +13,7 @@ from .schemas import (
     StartEndCreate,
 )
 from . import models
-from .utils import is_start_end_valid, fill_start_end
+from .utils import is_start_end_valid, fill_start_end_if_valid, determine_anime_state
 from auth.models import User
 
 
@@ -33,17 +33,23 @@ async def create_anime(
         anime_create: AnimeCreate,
 ) -> models.Anime:
     anime_create_dump = anime_create.model_dump()
-    anime_start_end = anime_create_dump.pop("start_end")
+    start_end_in: list[StartEndCreate] | None = anime_create_dump.pop("start_end", None)
 
-    anime = models.Anime(**anime_create_dump, user_id=current_user.uuid)
+    anime = models.Anime(
+        **anime_create_dump,
+        state=determine_anime_state(start_end_in),
+        user_id=current_user.uuid,
+    )
 
     async with session.begin_nested():
         session.add(anime)
 
-        db_start_end = fill_start_end(anime_start_end, anime.uuid)
-        anime.start_end = db_start_end
+        if start_end_in:
+            db_start_end = fill_start_end_if_valid(start_end_in, anime.uuid)
+            anime.start_end = db_start_end
+        else:
+            anime.start_end = []
 
-        session.add_all(db_start_end)
         await session.commit()
 
     return anime

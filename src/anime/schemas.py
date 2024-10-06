@@ -37,8 +37,11 @@ class AnimeBase(BaseModel):
     review: str | None
 
 
-class AnimeCreate(AnimeBase):
-    start_end: list[StartEndCreate]
+class AnimeCreate(BaseModel):
+    name: str
+    rate: int | None = Field(ge=1, le=10)
+    review: str | None
+    start_end: list[StartEndCreate] | None = None
 
 
 class AnimeRead(AnimeBase):

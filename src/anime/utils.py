@@ -3,7 +3,8 @@ from datetime import date
 
 from fastapi import HTTPException, status
 
-from .models import AnimeStartEnd
+from .models import AnimeStartEnd, State
+from .schemas import StartEndBase
 
 
 def is_start_end_valid(start_date: date, end_date: date):
@@ -15,8 +16,8 @@ def is_start_end_valid(start_date: date, end_date: date):
     return True
 
 
-def fill_start_end(
-        source: list[dict[str, date]],
+def fill_start_end_if_valid(
+        source: list[StartEndBase],
         anime_id: uuid.UUID,
 ) -> list[AnimeStartEnd]:
     destination: list[AnimeStartEnd] = []
@@ -32,3 +33,12 @@ def fill_start_end(
             anime_id=anime_id),
         )
     return destination
+
+
+def determine_anime_state(start_end_list: list[StartEndBase] | None) -> State:
+    if not start_end_list:
+        return State.PLAN_TO_WATCH
+    if not start_end_list[-1].get("end_date", None):
+        return State.WATCHING
+    else:
+        return State.WATCHED

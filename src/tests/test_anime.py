@@ -21,7 +21,6 @@ def anime_in() -> dict[str, str | list[dict[str, str] | dict[str, str]] | int]:
     return {
         "name": "Naruto",
         "rate": 10,
-        "state": State.WATCHED,
         "review": "Top",
         "start_end": [
             {
@@ -144,6 +143,60 @@ async def test_create_anime(
 
 
 @pytest.mark.anyio
+async def test_create_anime_state_plan_to_watch(
+        async_client: AsyncClient,
+        test_db: AsyncSession,
+        anime_in: dict,
+):
+    anime_in_without_start_end = anime_in.copy()
+    anime_in_without_start_end.pop("start_end")
+    headers = await user_token_headers(async_client, test_db)
+    response = await async_client.post(
+        f"{ANIME_PREFIX}/create",
+        json=anime_in_without_start_end,
+        headers=headers,
+    )
+    assert response.status_code == 201
+    created_anime = response.json()
+    assert created_anime["state"] == State.PLAN_TO_WATCH
+
+
+@pytest.mark.anyio
+async def test_create_anime_state_watched(
+        async_client: AsyncClient,
+        test_db: AsyncSession,
+        anime_in: dict,
+):
+    headers = await user_token_headers(async_client, test_db)
+    response = await async_client.post(
+        f"{ANIME_PREFIX}/create",
+        json=anime_in,
+        headers=headers,
+    )
+    assert response.status_code == 201
+    created_anime = response.json()
+    assert created_anime["state"] == State.WATCHED
+
+
+@pytest.mark.anyio
+async def test_create_anime_state_watching(
+        async_client: AsyncClient,
+        test_db: AsyncSession,
+        anime_in: dict,
+):
+    anime_in["start_end"].append({"start_date": "2024-02-02"})
+    headers = await user_token_headers(async_client, test_db)
+    response = await async_client.post(
+        f"{ANIME_PREFIX}/create",
+        json=anime_in,
+        headers=headers,
+    )
+    assert response.status_code == 201
+    created_anime = response.json()
+    assert created_anime["state"] == State.WATCHING
+
+
+@pytest.mark.anyio
 async def test_get_one_anime(async_client: AsyncClient, test_db: AsyncSession):
     headers = await user_token_headers(async_client, test_db)
     user = await get_current_user(test_db, headers["Authorization"].split()[1])
@@ -260,7 +313,6 @@ async def test_create_anime_start_end_not_enough_permissions(async_client: Async
 @pytest.mark.anyio
 async def test_create_anime_start_end_not_found(async_client: AsyncClient, test_db: AsyncSession):
     headers = await user_token_headers(async_client, test_db)
-    user = await get_current_user(test_db, headers["Authorization"].split()[1])
     data = {"start_date": "2030-01-01", "end_date": "2030-12-12"}
     response = await async_client.post(
         f"{ANIME_PREFIX}/{uuid.uuid4()}/create-start-end",
