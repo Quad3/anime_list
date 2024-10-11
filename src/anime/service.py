@@ -11,6 +11,7 @@ from .schemas import (
     AnimeUpdate,
     StartEndUpdate,
     StartEndCreate,
+    StartEndListRead,
 )
 from . import models
 from .utils import is_start_end_valid_or_raise, fill_start_end_if_valid, determine_anime_state
@@ -160,3 +161,31 @@ async def create_anime_start_end(
     session.add(start_end)
     await session.commit()
     return start_end
+
+
+async def get_start_end_list(
+        session: AsyncSession,
+        current_user: User,
+):
+    stmt = (
+        select(models.AnimeStartEnd)
+        .join(models.Anime)
+        .options(joinedload(models.AnimeStartEnd.anime))
+        .filter(models.Anime.user_id == current_user.uuid)
+        .order_by(models.AnimeStartEnd.start_date)
+    )
+    result = await session.scalars(stmt)
+    start_end_list = result.unique().all()
+    start_end_list_read = []
+    for start_end in start_end_list:
+        start_end_list_read.append(StartEndListRead(
+            start_date=start_end.start_date,
+            end_date=start_end.end_date,
+            name=start_end.anime.name,
+            rate=start_end.anime.rate,
+            state=start_end.anime.state,
+            review=start_end.anime.review,
+            user_id=start_end.anime.user_id,
+            anime_id=start_end.anime_id,
+        ))
+    return start_end_list_read

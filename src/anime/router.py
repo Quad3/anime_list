@@ -11,6 +11,7 @@ from .schemas import (
     StartEndUpdate,
     StartEndRead,
     StartEndCreate,
+    StartEndListRead,
 )
 from . import service
 from auth.deps import SessionDep, CurrentUser
@@ -40,7 +41,7 @@ async def create_anime(
     return anime
 
 
-@router.get("/", response_model=AnimeListRead)
+@router.get("", response_model=AnimeListRead)
 async def get_anime_list(
         session: SessionDep,
         current_user: CurrentUser,
@@ -58,6 +59,18 @@ async def get_anime_list(
     if not anime_list["data"]:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Out-of-Range page request")
     return anime_list
+
+
+@router.get("/start-end-list", response_model=list[StartEndListRead])
+async def get_anime_start_end_list(
+        session: SessionDep,
+        current_user: CurrentUser,
+):
+    start_end_list = await service.get_start_end_list(
+        session=session,
+        current_user=current_user,
+    )
+    return start_end_list
 
 
 @router.get("/{id}", response_model=AnimeRead)
@@ -134,3 +147,7 @@ async def create_anime_start_end(
         start_end_create=start_end_create,
     )
     return start_end
+
+
+# TODO stats of start-end durations
+# TODO list of popular anime

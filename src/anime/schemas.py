@@ -64,3 +64,12 @@ class AnimeUpdate(AnimeBase):
     state: State | None = None
     rate: int | None = Field(ge=1, le=10, default=None)
     review: str | None = None
+
+
+class StartEndListRead(StartEndRead, AnimeBase):
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+
+    user_id: UUID4
+    anime_id: UUID4

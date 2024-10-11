@@ -395,3 +395,19 @@ async def test_update_anime_start_end_not_enough_permissions(async_client: Async
     )
     assert response.status_code == 400
     assert response.json()["detail"] == "Not enough permissions"
+
+
+@pytest.mark.anyio
+async def test_get_anime_start_end_list(async_client: AsyncClient, test_db: AsyncSession):
+    headers = await user_token_headers(async_client, test_db)
+    user = await get_current_user(test_db, headers["Authorization"].split()[1])
+    anime1 = await create_random_anime(test_db, start_end_len=2, user_id=user.uuid)
+    anime2 = await create_random_anime(test_db, start_end_len=3, user_id=user.uuid)
+    response = await async_client.get(
+        f"{ANIME_PREFIX}/start-end-list",
+        headers=headers,
+    )
+    content = response.json()
+    assert len(content) == 5
+    assert sum([str(anime1.uuid) == start_end['anime_id'] for start_end in content]) == 2
+    assert sum([str(anime2.uuid) == start_end['anime_id'] for start_end in content]) == 3
