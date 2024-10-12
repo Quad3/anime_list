@@ -17,7 +17,7 @@ jobs:
     - name: Run docker-compose
       uses: hoverkraft-tech/compose-action@v2.0.1
       with:
-        compose-file: "./docker-compose.yml"
+        compose-file: "./backend/docker-compose.yml"
         services: |
           testdb
     - name: Set up Python 3.10
