@@ -39,7 +39,7 @@ def anime_in() -> dict[str, str | list[dict[str, str] | dict[str, str]] | int]:
 async def test_get_anime_list_empty(async_client: AsyncClient, test_db: AsyncSession):
     headers = await user_token_headers(async_client, test_db)
     response = await async_client.get(
-        f"{ANIME_PREFIX}/",
+        f"{ANIME_PREFIX}",
         headers=headers,
     )
     assert response.status_code == 404
@@ -54,7 +54,7 @@ async def test_get_anime_list_page_out_of_range(async_client: AsyncClient, test_
     await create_random_anime(test_db, user_id=user.uuid)
     await create_random_anime(test_db, user_id=user.uuid)
     response = await async_client.get(
-        f"{ANIME_PREFIX}/",
+        f"{ANIME_PREFIX}",
         params={"limit": 1, "page": 3},
         headers=headers,
     )
@@ -78,7 +78,7 @@ async def test_get_anime_list(async_client: AsyncClient, test_db: AsyncSession):
         user_id=user.uuid,
     )
     response = await async_client.get(
-        f"{ANIME_PREFIX}/",
+        f"{ANIME_PREFIX}",
         params={"limit": 5, "page": 1},
         headers=headers,
     )
@@ -115,7 +115,7 @@ async def test_create_anime_fail(
     assert response.status_code == 409
     assert response.json()["detail"] == "End date can't be earlier than start date"
     anime_list_response = await async_client.get(
-        f"{ANIME_PREFIX}/",
+        f"{ANIME_PREFIX}",
         headers=headers,
     )
     assert anime_list_response.status_code == 404
