@@ -23,6 +23,13 @@ export default class Store {
         }
     }
 
+    async checkAuth() {
+        const token = localStorage.getItem('token');
+        if (token && token !== "undefined") {
+            this.setIsAuth(true);
+        }
+    }
+
     // TODO signup
     // async signup(username: string, password: string) {}
 }

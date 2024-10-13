@@ -1,8 +1,9 @@
-import React, {FC, useContext, useState} from 'react';
+import React, {useContext, useState} from 'react';
+import {observer} from "mobx-react-lite";
 
 import {Context} from "../index";
 
-const LoginForm: FC = () => {
+const LoginForm = () => {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const {store} = useContext(Context)
@@ -26,4 +27,4 @@ const LoginForm: FC = () => {
     );
 };
 
-export default LoginForm;
+export default observer(LoginForm);

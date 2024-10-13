@@ -6,7 +6,7 @@ import {SignupResponse} from "../models/SignupResponse";
 
 export default class AuthService {
     static async login(username: string, password: string): Promise<AxiosResponse<AuthResponse>> {
-        return $api.post(
+        return $api.post<AuthResponse>(
             '/users/access-token',
             {username, password},
             {headers: {"Content-Type": "multipart/form-data"}},
@@ -14,7 +14,7 @@ export default class AuthService {
     }
 
     static async signup(username: string, password: string): Promise<AxiosResponse<SignupResponse>> {
-        return $api.post(
+        return $api.post<SignupResponse>(
             '/users/signup',
             {username, password},
         )
