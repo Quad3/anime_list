@@ -9,7 +9,7 @@ const store = new Store();
 
 export const Context = createContext<StoreInterface>({
     store,
-})
+});
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement

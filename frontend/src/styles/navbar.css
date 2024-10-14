@@ -1,0 +1,23 @@
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+.main-navbar {
+
+}
+
+.main-navbar > ul {
+    display: flex;
+    justify-content: space-between;
+}
+
+.nav-items {
+    display: flex;
+}
+
+.nav-items > li, .main-navbar > ul > li {
+    list-style: none;
+    border: 3px solid coral;
+    padding: 5px;
+}
