@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {observer} from "mobx-react-lite";
 
 import Anime from "./Anime";
-import {AnimeResponse} from "../models/AnimeResponse";
+import {AnimeResponse} from "../models/Anime";
 import AnimeListService from "../services/AnimeListService";
 import '../styles/main.css';
 

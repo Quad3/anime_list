@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {AnimeResponse} from "../models/AnimeResponse";
+import {AnimeResponse} from "../models/Anime";
 
 const Anime = ({ anime } : {anime : AnimeResponse}) => {
     return (
