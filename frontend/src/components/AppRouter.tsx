@@ -4,14 +4,12 @@ import {observer} from "mobx-react-lite";
 
 import {privateRoutes, publicRoutes} from "../router";
 import {Context} from "../index";
-import Navbar from "./Navbar";
 
 const AppRouter = () => {
     const {store} = useContext(Context);
 
     return (
         <div>
-            <Navbar />
             { store.isAuth
                 ?
                 <RouterProvider router={privateRoutes}/>

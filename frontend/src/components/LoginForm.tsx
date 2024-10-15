@@ -9,7 +9,7 @@ const LoginForm = () => {
     const {store} = useContext(Context)
 
     return (
-        <div>
+        <main>
             <input
                 onChange={e => setUsername(e.target.value)}
                 value={username}
@@ -23,7 +23,7 @@ const LoginForm = () => {
                 placeholder="Введите пароль"
             />
             <button onClick={() => store.login(username, password)}>Логин</button>
-        </div>
+        </main>
     );
 };
 

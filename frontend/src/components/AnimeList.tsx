@@ -4,6 +4,7 @@ import {observer} from "mobx-react-lite";
 import Anime from "./Anime";
 import {AnimeResponse} from "../models/AnimeResponse";
 import AnimeListService from "../services/AnimeListService";
+import '../styles/main.css';
 
 const AnimeList = () => {
     const [animeList, setAnimeList] = useState<AnimeResponse[]>([]);
@@ -26,7 +27,7 @@ const AnimeList = () => {
     }
 
     return (
-        <div>
+        <main>
             {isAnimeListLoading
                 ?
                 <h1>Идет загрузка</h1>
@@ -40,7 +41,7 @@ const AnimeList = () => {
                     ))}
                 </div>
             }
-        </div>
+        </main>
     );
 };
 

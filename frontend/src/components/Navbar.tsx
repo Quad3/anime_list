@@ -1,7 +1,9 @@
 import React, {useContext} from 'react';
+import {Link} from "react-router-dom";
 
 import {Context} from "../index";
 import '../styles/navbar.css';
+import logo from '../assets/logo.jpg';
 
 const Navbar = () => {
     const {store} = useContext(Context);
@@ -14,15 +16,18 @@ const Navbar = () => {
     return (
         <nav className="main-navbar">
             <ul>
-                <div className="nav-items">
-                    <li><a href="/anime">Anime list</a></li>
-                    <li><a href="/create">Create</a></li>
-                </div>
+                <li><Link to="/anime"><img className="nav-logo" src={logo} alt="My Anime List"/></Link></li>
                 { store.isAuth
                     ?
-                    <li onClick={ logout }>Выйти</li>
+                    <>
+                        <div className="nav-items">
+                            <li><Link to="/anime">Список Аниме</Link></li>
+                            <li><Link to="/create">Создать</Link></li>
+                        </div>
+                        <li id="logout-btn" onClick={ logout }><Link to="/login">Выйти</Link></li>
+                    </>
                     :
-                    <></>
+                    <li id="login-btn"><Link to="/login">Войти</Link></li>
                 }
             </ul>
         </nav>

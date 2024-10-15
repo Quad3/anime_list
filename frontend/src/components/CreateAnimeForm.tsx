@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {observer} from "mobx-react-lite";
 
 import "../styles/create-anime-form.css";
+import "../styles/main.css";
 import AnimeListService from "../services/AnimeListService";
 
 const CreateAnimeForm = () => {
@@ -25,7 +26,7 @@ const CreateAnimeForm = () => {
     }
 
     return (
-        <div className="create-anime-form">
+        <main className="create-anime-form">
             <input
                 onChange={e => setName(e.target.value)}
                 value={name}
@@ -57,7 +58,7 @@ const CreateAnimeForm = () => {
                 placeholder="Введите дату окончания просмотра"
             />
             <button onClick={() => {createAnime()}}>Создать</button>
-        </div>
+        </main>
     );
 };
 
