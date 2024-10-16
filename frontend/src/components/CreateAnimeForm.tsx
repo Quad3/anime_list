@@ -4,6 +4,7 @@ import {observer} from "mobx-react-lite";
 import "../styles/create-anime-form.css";
 import "../styles/main.css";
 import AnimeListService from "../services/AnimeListService";
+import Input from "./Input";
 
 const CreateAnimeForm = () => {
     const [name, setName] = useState<string>('');
@@ -45,15 +46,15 @@ const CreateAnimeForm = () => {
                 type="text"
                 placeholder="Введите описание"
             />
-            <input
-                onChange={e => setStartDate(e.target.value)}
-                name='start_date'
+            <Input
+                onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setStartDate(e.target.value)}
+                value={startDate}
                 type="date"
                 placeholder="Введите дату начала просмотра"
             />
-            <input
-                onChange={e => setEndDate(e.target.value)}
-                name='end_date'
+            <Input
+                onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setEndDate(e.target.value)}
+                value={endDate}
                 type="date"
                 placeholder="Введите дату окончания просмотра"
             />

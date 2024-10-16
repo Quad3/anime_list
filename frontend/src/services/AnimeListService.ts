@@ -1,7 +1,12 @@
 import {AxiosResponse} from "axios";
 
 import $api from "../http";
-import {AnimeResponse, AnimeCreate, PaginatedAnimeResponse} from "../models/Anime";
+import {
+    AnimeResponse,
+    AnimeCreate,
+    PaginatedAnimeResponse,
+    StartEnd,
+} from "../models/Anime";
 
 export default class AnimeListService {
     static async getAll(): Promise<AxiosResponse<PaginatedAnimeResponse>> {
@@ -18,6 +23,27 @@ export default class AnimeListService {
     static async getById(uuid: string): Promise<AxiosResponse<AnimeResponse>> {
         return $api.get<AnimeResponse>(
             `/anime/${uuid}`,
+        );
+    }
+
+    static async createStartEnd(
+        uuid: string | undefined,
+        startDate: string,
+        endDate: string,
+    ): Promise<AxiosResponse<StartEnd>> {
+        let data;
+        if (endDate)
+            data = {
+                start_date: startDate,
+                end_date: endDate,
+            }
+        else
+            data = {
+                start_date: startDate,
+            }
+        return $api.post<StartEnd>(
+            `/anime/${uuid}/create-start-end`,
+            {...data},
         );
     }
 }
