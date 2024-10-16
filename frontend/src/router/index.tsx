@@ -5,12 +5,16 @@ import AnimeList from "../components/AnimeList";
 import LoginForm from "../components/LoginForm";
 import CreateAnimeForm from "../components/CreateAnimeForm";
 import Navbar from "../components/Navbar";
-
+import AnimeDetail from "../components/AnimeDetail";
 
 const _privateRoutes = [
     {
         path: '/anime',
         element: <AnimeList/>,
+    },
+    {
+        path: '/anime/:uuid',
+        element: <AnimeDetail/>,
     },
     {
         path: '/create',

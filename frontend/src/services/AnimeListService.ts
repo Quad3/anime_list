@@ -14,4 +14,10 @@ export default class AnimeListService {
             {...animeIn},
         );
     }
+
+    static async getById(uuid: string): Promise<AxiosResponse<AnimeResponse>> {
+        return $api.get<AnimeResponse>(
+            `/anime/${uuid}`,
+        );
+    }
 }

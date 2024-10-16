@@ -1,3 +1,20 @@
 main {
     padding: 0 25px;
 }
+
+.anime-title {
+    color: rgb(9, 105, 218);
+}
+
+.anime-title:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.anime > p {
+    margin: 5px 0;
+}
+
+.anime > ol {
+    margin: 8px 0;
+}
