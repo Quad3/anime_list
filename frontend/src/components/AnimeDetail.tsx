@@ -3,7 +3,7 @@ import {useParams} from "react-router-dom";
 
 import {AnimeResponse} from "../models/Anime";
 import AnimeListService from "../services/AnimeListService";
-import Input from "./Input";
+import Input from "./UI/Input/Input";
 import Modal from "./UI/Modal/Modal";
 
 const AnimeDetail = () => {

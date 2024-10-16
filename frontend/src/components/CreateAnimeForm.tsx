@@ -4,7 +4,7 @@ import {observer} from "mobx-react-lite";
 import "../styles/create-anime-form.css";
 import "../styles/main.css";
 import AnimeListService from "../services/AnimeListService";
-import Input from "./Input";
+import Input from "./UI/Input/Input";
 
 const CreateAnimeForm = () => {
     const [name, setName] = useState<string>('');
