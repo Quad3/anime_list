@@ -97,6 +97,42 @@ async def test_get_anime_list(async_client: AsyncClient, test_db: AsyncSession):
 
 
 @pytest.mark.anyio
+async def test_get_anime_list_different_users(async_client: AsyncClient, test_db: AsyncSession):
+    headers = await user_token_headers(async_client, test_db)
+    user = await get_current_user(test_db, headers["Authorization"].split()[1])
+    anime1 = await create_random_anime(
+        test_db,
+        start_date=date(year=2010, month=1, day=1),
+        user_id=user.uuid,
+    )
+    other_user = await create_random_user(test_db)
+    anime2 = await create_random_anime(
+        test_db,
+        start_date=date(year=2014, month=1, day=1),
+        start_end_len=2,
+        user_id=other_user.uuid,
+    )
+    response = await async_client.get(
+        f"{ANIME_PREFIX}",
+        params={"limit": 5, "page": 1},
+        headers=headers,
+    )
+    assert response.status_code == 200
+    content = response.json()
+    assert content["count"] == 1
+    assert len(content["data"]) == 1
+    response_data = content["data"][0]
+    assert response_data["uuid"] == str(anime1.uuid)
+    assert response_data["name"] == anime1.name
+    assert response_data["rate"] == anime1.rate
+    assert response_data["review"] == anime1.review
+    assert response_data["state"] == anime1.state
+    for content_start_end, anime_start_end in zip(response_data["start_end"], anime1.start_end):
+        assert content_start_end["start_date"] == str(anime_start_end.start_date)
+        assert content_start_end["end_date"] == str(anime_start_end.end_date)
+
+
+@pytest.mark.anyio
 async def test_create_anime_fail(
         async_client: AsyncClient,
         test_db: AsyncSession,

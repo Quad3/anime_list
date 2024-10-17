@@ -80,6 +80,7 @@ async def get_anime_list(
         select(models.Anime)
         .join(subq)
         .options(joinedload(models.Anime.start_end))
+        .where(models.Anime.user_id == current_user.uuid)
     )
     result = await session.execute(stmt)
     anime_list = result.scalars().unique().all()
