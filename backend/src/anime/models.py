@@ -1,6 +1,6 @@
 import uuid
 import enum
-from sqlalchemy import Column, String, UUID, Integer, Date, ForeignKey
+from sqlalchemy import Column, String, UUID, Integer, Date, ForeignKey, UniqueConstraint
 from sqlalchemy.types import Enum
 from sqlalchemy.orm import relationship
 
@@ -18,7 +18,7 @@ class Anime(Base):
     __tablename__ = "anime"
 
     uuid = Column(UUID, primary_key=True, default=uuid.uuid4)
-    name = Column(String(128), nullable=False, unique=True)
+    name = Column(String(128), nullable=False)
     state = Column(Enum(State), default=State.WATCHING)
     rate = Column(Integer, nullable=True)
     review = Column(String(4096), nullable=True)
@@ -30,6 +30,10 @@ class Anime(Base):
         order_by="AnimeStartEnd.start_date",
     )
     user = relationship("User", back_populates="anime")
+
+    __table_args__ = (
+        UniqueConstraint('name', 'user_id', name='anime_name_uc'),
+    )
 
 
 class AnimeStartEnd(Base):
