@@ -1,5 +1,6 @@
 main {
-    padding: 0 25px;
+    max-width: 80%;
+    margin: auto;
 }
 
 .anime-title {

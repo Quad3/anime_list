@@ -24,10 +24,15 @@ const Navbar = () => {
                             <li><Link to="/anime">Список Аниме</Link></li>
                             <li><Link to="/create">Создать</Link></li>
                         </div>
-                        <li id="logout-btn" onClick={ logout }><Link to="/login">Выйти</Link></li>
+                        <div className="auth-btns">
+                            <li id="logout-btn" onClick={ logout }><Link to="/login">Выйти</Link></li>
+                        </div>
                     </>
                     :
-                    <li id="login-btn"><Link to="/login">Войти</Link></li>
+                    <div className="auth-btns">
+                        <li id="signup-btn"><Link to="/signup">Регистрация</Link></li>
+                        <li id="login-btn"><Link to="/login">Войти</Link></li>
+                    </div>
                 }
             </ul>
         </nav>

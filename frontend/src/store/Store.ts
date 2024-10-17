@@ -24,6 +24,15 @@ export default class Store {
         }
     }
 
+    async signup(username: string, password: string) {
+        try {
+            const response = await AuthService.signup(username, password);
+            await this.login(username, password);
+        } catch (e: any) {
+            console.log(e.response?.data?.detail);
+        }
+    }
+
     async checkAuth() {
         const token = localStorage.getItem('token');
         if (token && token !== "undefined") {

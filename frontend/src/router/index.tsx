@@ -2,10 +2,11 @@ import React from "react";
 import {Navigate, createBrowserRouter, Outlet} from "react-router-dom";
 
 import AnimeList from "../components/AnimeList";
-import LoginForm from "../components/LoginForm";
+import LoginForm from "../components/UI/AuthForms/LoginForm";
 import CreateAnimeForm from "../components/CreateAnimeForm";
 import Navbar from "../components/Navbar";
 import AnimeDetail from "../components/AnimeDetail";
+import SignupForm from "../components/UI/AuthForms/SIgnupForm";
 
 const _privateRoutes = [
     {
@@ -30,6 +31,10 @@ export const _publicRoutes = [
     {
         path: '/login',
         element: <LoginForm/>,
+    },
+    {
+        path: '/signup',
+        element: <SignupForm/>,
     },
     {
         path: '*',

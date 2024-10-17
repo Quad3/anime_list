@@ -53,6 +53,11 @@ ul li {
     margin: 0 5px;
 }
 
-#login-btn, #logout-btn {
+.auth-btns {
     margin-left: auto;
+    display: flex;
+}
+
+.auth-btns > li {
+    margin: 0 10px;
 }
