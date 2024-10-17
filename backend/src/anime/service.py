@@ -70,8 +70,10 @@ async def get_anime_list(
     count = count_result.first()
     subq = (
         select(models.AnimeStartEnd.anime_id)
+        .join(models.Anime)
         .group_by(models.AnimeStartEnd.anime_id)
         .order_by(func.min(models.AnimeStartEnd.start_date))
+        .where(models.Anime.user_id == current_user.uuid)
         .limit(limit)
         .offset((page - 1) * limit)
         .subquery()
@@ -80,7 +82,6 @@ async def get_anime_list(
         select(models.Anime)
         .join(subq)
         .options(joinedload(models.Anime.start_end))
-        .where(models.Anime.user_id == current_user.uuid)
     )
     result = await session.execute(stmt)
     anime_list = result.scalars().unique().all()
