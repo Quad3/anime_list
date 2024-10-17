@@ -14,16 +14,19 @@ const CreateAnimeForm = () => {
     const [endDate, setEndDate] = useState<string>('');
 
     async function createAnime() {
-        const anime = await AnimeListService.create({
-            name: name,
-            rate: rate,
-            review: review,
-            start_end: [{
-                start_date: startDate,
-                end_date: endDate,
-            }],
-        })
-        console.log(anime);
+        try {
+            const anime = await AnimeListService.create({
+                name: name,
+                rate: rate,
+                review: review,
+                start_end: [{
+                    start_date: startDate,
+                    end_date: endDate,
+                }],
+            })
+        } catch (e: any) {
+            console.log(e.response?.data?.detail);
+        }
     }
 
     return (
@@ -58,7 +61,7 @@ const CreateAnimeForm = () => {
                 type="date"
                 placeholder="Введите дату окончания просмотра"
             />
-            <button onClick={() => {createAnime()}}>Создать</button>
+            <button onClick={createAnime}>Создать</button>
         </main>
     );
 };
