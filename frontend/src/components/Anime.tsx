@@ -3,16 +3,10 @@ import {useNavigate} from 'react-router-dom';
 
 import {AnimeResponse} from "../models/Anime";
 import '../styles/main.css';
+import {getFormattedDate} from "../utils";
 
 const Anime = ({ anime } : {anime : AnimeResponse}) => {
     const navigate = useNavigate();
-
-    function getFormattedDate(s: string | undefined) {
-        if (typeof s === "string") {
-            const date = new Date(Date.parse(s))
-            return date.toLocaleDateString('ru-RU')
-        }
-    }
 
     return (
         <div className="anime" key={anime.uuid}>

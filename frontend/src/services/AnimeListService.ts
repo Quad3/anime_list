@@ -46,4 +46,14 @@ export default class AnimeListService {
             {...data},
         );
     }
+
+    static async updateStartEnd(
+        uuid: string | undefined,
+        endDate: string,
+    ): Promise<AxiosResponse<StartEnd>> {
+        return $api.patch<StartEnd>(
+            `/anime/${uuid}/update-start-end`,
+            {end_date: endDate},
+        )
+    }
 }

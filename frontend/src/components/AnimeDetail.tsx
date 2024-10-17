@@ -5,6 +5,7 @@ import {AnimeResponse} from "../models/Anime";
 import AnimeListService from "../services/AnimeListService";
 import Input from "./UI/Input/Input";
 import Modal from "./UI/Modal/Modal";
+import StartEndList from "./UI/StartEndList/StartEndList";
 
 const AnimeDetail = () => {
     const { uuid = '' } = useParams<{uuid: string}>();
@@ -13,6 +14,7 @@ const AnimeDetail = () => {
     const [startDate, setStartDate] = useState<string>('');
     const [endDate, setEndDate] = useState<string>('');
     const [modal, setModal] = useState<boolean>(false);
+    const [isCompletedStartEnd, setIsCompletedStartEnd] = useState<boolean>(false)
 
     useEffect(() => {
         fetchAnime()
@@ -34,6 +36,10 @@ const AnimeDetail = () => {
         try {
             const response = await AnimeListService.createStartEnd(anime.uuid, startDate, endDate);
             setModal(false);
+            setStartDate('');
+            setEndDate('');
+            if (!response.data.end_date)
+                setIsCompletedStartEnd(false);
             if (anime.start_end)
                 anime.start_end = [...anime.start_end, response.data]
             else
@@ -54,11 +60,11 @@ const AnimeDetail = () => {
                     <h2>{anime.name}</h2>
                     <p>{anime.state}</p>
                     <p>{anime.rate}</p>
-                    <ol>
-                        {anime.start_end?.map((item, index) => (
-                            <li key={index}>{item.start_date} - {item.end_date}</li>
-                        ))}
-                    </ol>
+                    <StartEndList
+                        anime={anime}
+                        setAnime={setAnime}
+                        setIsCompleted={setIsCompletedStartEnd}
+                    />
                     <button onClick={() => {setModal(true)}}>Добавить просмотр</button>
 
                     <Modal visible={modal} setVisible={setModal}>
