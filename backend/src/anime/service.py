@@ -5,6 +5,8 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select, func
 from fastapi import HTTPException, status
+from sqlalchemy import exc
+from fastapi.encoders import jsonable_encoder
 
 from .schemas import (
     AnimeCreate,
@@ -42,15 +44,18 @@ async def create_anime(
         user_id=current_user.uuid,
     )
 
-    async with session.begin_nested():
-        session.add(anime)
+    try:
+        async with session.begin_nested():
+            session.add(anime)
 
-        db_start_end = fill_start_end_if_valid(start_end_in)
-        for start_end in db_start_end:
-            start_end.anime_id = anime.uuid
-        anime.start_end = db_start_end
+            db_start_end = fill_start_end_if_valid(start_end_in)
+            for start_end in db_start_end:
+                start_end.anime_id = anime.uuid
+            anime.start_end = db_start_end
 
-        await session.commit()
+            await session.commit()
+    except exc.IntegrityError as e:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail='Anime with this name already exists')
 
     return anime
 
