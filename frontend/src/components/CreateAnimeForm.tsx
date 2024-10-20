@@ -12,10 +12,18 @@ const CreateAnimeForm = () => {
     const [review, setReview] = useState<string>('');
     const [startDate, setStartDate] = useState<string>('');
     const [endDate, setEndDate] = useState<string>('');
+    const [success, setSuccess] = useState<boolean>(false);
+
+    async function setStatesEmpty() {
+        setName('');
+        setReview('');
+        setStartDate('');
+        setEndDate('');
+    }
 
     async function createAnime() {
         try {
-            const anime = await AnimeListService.create({
+            const response = await AnimeListService.create({
                 name: name,
                 rate: rate,
                 review: review,
@@ -24,6 +32,11 @@ const CreateAnimeForm = () => {
                     end_date: endDate,
                 }],
             })
+            if (response.status === 201) {
+                setSuccess(true);
+                await setStatesEmpty();
+                setTimeout(() => setSuccess(false), 3000);
+            }
         } catch (e: any) {
             console.log(e.response?.data?.detail);
         }
@@ -62,6 +75,12 @@ const CreateAnimeForm = () => {
                 placeholder="Введите дату окончания просмотра"
             />
             <button onClick={createAnime}>Создать</button>
+            {success
+                ?
+                <h3>Аниме успешно создано</h3>
+                :
+                <></>
+            }
         </main>
     );
 };
