@@ -23,6 +23,7 @@ const Navbar = () => {
                         <div className="nav-items">
                             <li><Link to="/anime">Список Аниме</Link></li>
                             <li><Link to="/create">Создать</Link></li>
+                            <li><Link to="/start-end-graph">График</Link></li>
                         </div>
                         <div className="auth-btns">
                             <li id="logout-btn" onClick={ logout }><Link to="/login">Выйти</Link></li>

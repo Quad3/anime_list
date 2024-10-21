@@ -7,6 +7,7 @@ import {
     PaginatedAnimeResponse,
     StartEnd,
 } from "../models/Anime";
+import {StartEndListResponse} from "../components/UI/Gantt/Models";
 
 export default class AnimeListService {
     static async getAll(): Promise<AxiosResponse<PaginatedAnimeResponse>> {
@@ -55,5 +56,9 @@ export default class AnimeListService {
             `/anime/${uuid}/update-start-end`,
             {end_date: endDate},
         )
+    }
+
+    static async getStartEndList(): Promise<AxiosResponse<StartEndListResponse[]>> {
+        return $api.get<StartEndListResponse[]>('/anime/start-end-list');
     }
 }

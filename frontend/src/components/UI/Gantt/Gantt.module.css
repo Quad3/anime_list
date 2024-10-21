@@ -1,0 +1,54 @@
+.main {
+    display: flex;
+    background-color: #f5f5f5;
+    max-width: 95vw;
+}
+
+.animeRates {
+    width: 10vw;
+}
+
+.animeRatesHeader {
+    width: 10vw;
+}
+
+.rating, .animeRatesHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+}
+
+.ganttHeader {
+
+}
+
+.gantt {
+    overflow-x: auto;
+    max-width: 85vw;
+}
+
+.svgTextCenter {
+    font-size: 26px;
+    text-anchor: middle;
+}
+
+.stateWatched {
+    fill: forestgreen;
+}
+
+.stateWatching {
+    fill: lightyellow;
+}
+
+.stateDropped {
+    fill: indianred;
+}
+
+.rowLines {
+
+}
+
+.columnLines *, .rowLines * {
+    stroke: rebeccapurple;
+}

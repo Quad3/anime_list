@@ -7,6 +7,7 @@ import CreateAnimeForm from "../components/CreateAnimeForm";
 import Navbar from "../components/Navbar";
 import AnimeDetail from "../components/AnimeDetail";
 import SignupForm from "../components/UI/AuthForms/SIgnupForm";
+import Gantt from "../components/UI/Gantt/Gantt";
 
 const _privateRoutes = [
     {
@@ -20,6 +21,10 @@ const _privateRoutes = [
     {
         path: '/create',
         element: <CreateAnimeForm/>,
+    },
+    {
+        path: '/start-end-graph',
+        element: <Gantt/>,
     },
     {
         path: '*',
