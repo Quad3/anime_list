@@ -29,8 +29,11 @@
 }
 
 .svgTextCenter {
-    font-size: 26px;
     text-anchor: middle;
+}
+
+.svgMonthTitles {
+    font-size: 26px;
 }
 
 .stateWatched {

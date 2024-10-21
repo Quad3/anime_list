@@ -24,7 +24,7 @@ let STATE_STYLES: {[index: string]: any} = {
     WATCHED: cl.stateWatched,
     WATCHING: cl.stateWatching,
     DROPPED: cl.stateDropped,
-}
+};
 
 const Gantt = () => {
     const [animeList, setAnimeList] = useState<StartEndListResponse[]>([]);
@@ -160,9 +160,8 @@ const Gantt = () => {
             let curDate = new Date(Date.parse(dateSegment.start_date));
             for (let i=0; i<=daysBetween(dateSegment.start_date, dateSegment.end_date); i++) {
                 let dateAndWeekday = [curDate.getDate(), daysOfWeek[curDate.getDay()]].join(' ');
-                let xOffset = getTextIndent(dateAndWeekday.length);
                 days.push({
-                    x: curX + xOffset,
+                    x: curX + COLUMN_WIDTH / 2,
                     y: y,
                     value: dateAndWeekday,
                 });
@@ -173,7 +172,7 @@ const Gantt = () => {
                 curX += COLUMN_WIDTH * 2;
                 days.push({
                     x: curX,
-                    y: 30,
+                    y: y,
                     value: '',
                 });
             }
@@ -226,12 +225,6 @@ const Gantt = () => {
         });
 
         return months
-    }
-
-    function getTextIndent(charsWidth: number) {
-        const smallIndent = 5;
-        const bigIndent = 10;
-        return charsWidth === 4 ? bigIndent : smallIndent;
     }
 
     function getAnimeRects() {
@@ -295,6 +288,7 @@ const Gantt = () => {
                     <g>
                         {days.map((dayText) => (
                             <text
+                                className={cl.svgTextCenter}
                                 key={'dayText' + dayText.x}
                                 x={dayText.x}
                                 y={dayText.y}
@@ -307,7 +301,7 @@ const Gantt = () => {
                     <g>
                         {months.map((month) => (
                             <text
-                                className={cl.svgTextCenter}
+                                className={[cl.svgTextCenter, cl.svgMonthTitles].join(' ')}
                                 key={'monthText' + month.x}
                                 x={month.x}
                                 y={month.y}
