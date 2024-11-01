@@ -11,7 +11,10 @@ import {StartEndListResponse} from "../components/UI/Gantt/Models";
 
 export default class AnimeListService {
     static async getAll(): Promise<AxiosResponse<PaginatedAnimeResponse>> {
-        return $api.get<PaginatedAnimeResponse>("/anime");
+        return $api.get<PaginatedAnimeResponse>(
+            "/anime",
+            {params: {limit: 20}},
+        );
     }
 
     static async create(animeIn: AnimeCreate): Promise<AxiosResponse<AnimeResponse>> {
