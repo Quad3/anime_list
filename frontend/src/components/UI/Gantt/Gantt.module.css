@@ -55,3 +55,7 @@
 .columnLines *, .rowLines * {
     stroke: rebeccapurple;
 }
+
+.animeTitle {
+    text-anchor: end;
+}

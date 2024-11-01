@@ -34,6 +34,7 @@ const Gantt = () => {
     const [months, setMonths] = useState<Text[]>([]);
     const [xOffsets, setXOffsets] = useState<number[]>([]);
     const [animeRects, setAnimeRects] = useState<ComplexRect[]>([]);
+    const [animeTitles, setAnimeTitles] = useState<Text[]>([]);
     const scrollRef = useHorizontalScroll();
 
     async function fetchAnimeList() {
@@ -69,9 +70,15 @@ const Gantt = () => {
             setRowLines(getRowLines());
             GRID_HEIGHT = ROW_HEIGHT * ROW_NUMBER;
             setColumnLines(getColumnLines());
-            setScrollOnRight();
         }
     }, [xOffsets]);
+
+    useEffect(() => {
+        if (animeRects.length !== 0) {
+            setAnimeTitles(getAnimeTitles());
+            setScrollOnRight();
+        }
+    }, [animeRects]);
 
     function setScrollOnRight() {
         window.document.getElementById('gantt')?.scrollTo({left: GRID_WIDTH});
@@ -201,7 +208,7 @@ const Gantt = () => {
 
                 let daysWidth = monthEnd.getDate() - monthStart.getDate() + 1
                 let width = COLUMN_WIDTH * daysWidth;
-                let monthValue = daysWidth == 1
+                let monthValue = daysWidth === 1
                     ? shortMonthNames[monthStart.getMonth()]
                     : monthNames[monthStart.getMonth()];
                 months.push({
@@ -235,6 +242,18 @@ const Gantt = () => {
         return res;
     }
 
+    function getAnimeTitles() {
+        let res: Text[] = [];
+        animeRects.map(animeRect => {
+            res.push({
+                x: animeRect.x + animeRect.width,
+                y: animeRect.y + 20,
+                value: animeRect.anime.name,
+            })
+        });
+        return res;
+    }
+
     function getComplexAnimeRects() {
         let res: ComplexRect[][] = [];
 
@@ -261,9 +280,9 @@ const Gantt = () => {
         if (source.length === 0) {
             source.push([{
                 anime: newAnime,
-                x: x,
+                x: x + 5,
                 y: paddingTop,
-                width: width,
+                width: width - 10,
                 height: height,
             }]);
             return;
@@ -271,12 +290,12 @@ const Gantt = () => {
         let added = false;
 
         for (let i=0; i<source.length; i++) {
-            if (newAnime.start_date >= source[i][source[i].length - 1].anime.end_date) {
+            if (newAnime.start_date > source[i][source[i].length - 1].anime.end_date) {
                 source[i].push({
                     anime: newAnime,
-                    x: x,
+                    x: x + 5,
                     y: i * ROW_HEIGHT + paddingTop,
-                    width: width,
+                    width: width - 10,
                     height: height,
                 });
                 added = true;
@@ -286,9 +305,9 @@ const Gantt = () => {
         if (!added)
             source.push([{
                 anime: newAnime,
-                x: x,
+                x: x + 5,
                 y: source.length * ROW_HEIGHT + paddingTop,
-                width: width,
+                width: width - 10,
                 height: height,
             }]);
     }
@@ -356,6 +375,18 @@ const Gantt = () => {
                                     key={'animeRect' + index}
                                     {...animeRect}
                                 ></rect>
+                            ))}
+                        </g>
+                        <g>
+                            {animeTitles.map((animeTitle, index) => (
+                                <text
+                                    className={cl.animeTitle}
+                                    key={'animeTitle' + index}
+                                    x={animeTitle.x}
+                                    y={animeTitle.y}
+                                >
+                                    {animeTitle.value}
+                                </text>
                             ))}
                         </g>
                         <g className={cl.columnLines}>
