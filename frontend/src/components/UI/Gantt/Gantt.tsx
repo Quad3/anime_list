@@ -4,22 +4,21 @@ import {daysBetween} from "../../../utils";
 import {
     StartEnd,
     Line,
-    Rect,
     Text,
     StartEndListResponse,
+    ComplexRect,
 } from "./Models";
 import cl from './Gantt.module.css';
 import AnimeListService from "../../../services/AnimeListService";
 import {useHorizontalScroll} from "./HorizontalScroll";
 
-const GRID_HEIGHT = 500;
-const ROW_NUMBER = 10;
-const ROW_HEIGHT = GRID_HEIGHT / ROW_NUMBER;
 const COLUMN_WIDTH = 50;
+const ROW_HEIGHT = 50;
 const DAYS_GAP = 7;
-const ratingTitles = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 
 let GRID_WIDTH = 0;
+let ROW_NUMBER = 0;
+let GRID_HEIGHT = 0;
 let STATE_STYLES: {[index: string]: any} = {
     WATCHED: cl.stateWatched,
     WATCHING: cl.stateWatching,
@@ -34,7 +33,7 @@ const Gantt = () => {
     const [days, setDays] = useState<Text[]>([]);
     const [months, setMonths] = useState<Text[]>([]);
     const [xOffsets, setXOffsets] = useState<number[]>([]);
-    const [animeRects, setAnimeRects] = useState<Rect[]>([]);
+    const [animeRects, setAnimeRects] = useState<ComplexRect[]>([]);
     const scrollRef = useHorizontalScroll();
 
     async function fetchAnimeList() {
@@ -58,7 +57,6 @@ const Gantt = () => {
     useEffect(() => {
         if (dateSegments.length !== 0) {
             GRID_WIDTH = getGridWidth();
-            setColumnLines(getColumnLines());
             setDays(getDays());
             setMonths(getMonths());
             setXOffsets(getXOffsets());
@@ -66,14 +64,11 @@ const Gantt = () => {
     }, [dateSegments]);
 
     useEffect(() => {
-        if (GRID_WIDTH) {
-            setRowLines(getRowLines());
-        }
-    }, [GRID_WIDTH]);
-
-    useEffect(() => {
         if (xOffsets.length !== 0) {
-            setAnimeRects(getAnimeRects());
+            setAnimeRects(getAnimeRectsAndRowNumber());
+            setRowLines(getRowLines());
+            GRID_HEIGHT = ROW_HEIGHT * ROW_NUMBER;
+            setColumnLines(getColumnLines());
             setScrollOnRight();
         }
     }, [xOffsets]);
@@ -227,18 +222,75 @@ const Gantt = () => {
         return months
     }
 
-    function getAnimeRects() {
-        let res: Rect[] = [];
-        animeList.map((anime, index) => {
-            const yOffset = (ROW_NUMBER - anime.rate) * ROW_HEIGHT;
-            res.push({
-                x: xOffsets[index],
-                y: yOffset + 10,
-                width: (daysBetween(anime.start_date, anime.end_date) + 1) * COLUMN_WIDTH,
-                height: ROW_HEIGHT - 20,
-            });
-        });
+    function getAnimeRectsAndRowNumber() {
+        const complexRects = getComplexAnimeRects();
+        ROW_NUMBER = complexRects.length;
+
+        let res: ComplexRect[] = [];
+        complexRects.map(arr => {
+            arr.map(rect => {
+                res.push(rect);
+            })
+        })
         return res;
+    }
+
+    function getComplexAnimeRects() {
+        let res: ComplexRect[][] = [];
+
+        animeList.map((anime, index) => {
+            getRectByRate(
+                res,
+                anime,
+                xOffsets[index],
+                (daysBetween(anime.start_date, anime.end_date) + 1) * COLUMN_WIDTH,
+            );
+        });
+
+        return res;
+    }
+
+    function getRectByRate(
+        source: ComplexRect[][],
+        newAnime: StartEndListResponse,
+        x: number,
+        width: number,
+    ) {
+        const paddingTop = 10;
+        const height = ROW_HEIGHT - paddingTop * 2;
+        if (source.length === 0) {
+            source.push([{
+                anime: newAnime,
+                x: x,
+                y: paddingTop,
+                width: width,
+                height: height,
+            }]);
+            return;
+        }
+        let added = false;
+
+        for (let i=0; i<source.length; i++) {
+            if (newAnime.start_date >= source[i][source[i].length - 1].anime.end_date) {
+                source[i].push({
+                    anime: newAnime,
+                    x: x,
+                    y: i * ROW_HEIGHT + paddingTop,
+                    width: width,
+                    height: height,
+                });
+                added = true;
+                break;
+            }
+        }
+        if (!added)
+            source.push([{
+                anime: newAnime,
+                x: x,
+                y: source.length * ROW_HEIGHT + paddingTop,
+                width: width,
+                height: height,
+            }]);
     }
 
     function getXOffsets() {
@@ -266,23 +318,6 @@ const Gantt = () => {
 
     return (
         <main className={cl.main}>
-            <div>
-                <div className={cl.animeRatesHeader} style={{height: ROW_HEIGHT}}>
-                    Рейтинг
-                </div>
-                <div className={cl.animeRates}>
-                    {ratingTitles.map((rating) => (
-                        <div
-                            style={{height: ROW_HEIGHT}}
-                            className={cl.rating}
-                            key={'ratingTitle' + rating}
-                        >
-                            {rating}
-                        </div>
-                    ))}
-                </div>
-            </div>
-
             <div className={cl.gantt} id="gantt" ref={scrollRef}>
                 <svg width={GRID_WIDTH} height={ROW_HEIGHT}>
                     <g>
@@ -318,7 +353,7 @@ const Gantt = () => {
                             {animeRects.map((animeRect, index) => (
                                 <rect
                                     className={STATE_STYLES[animeList[index].state]}
-                                    key={'animerect' + index}
+                                    key={'animeRect' + index}
                                     {...animeRect}
                                 ></rect>
                             ))}

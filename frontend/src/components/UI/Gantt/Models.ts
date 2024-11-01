@@ -21,7 +21,8 @@ export interface Line {
     y2: number,
 }
 
-export interface Rect {
+export interface ComplexRect {
+    anime: StartEndListResponse,
     x: number,
     y: number,
     width: number,
