@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  testdb:
+    image: postgres:14
+    container_name: test_db
+    ports:
+      - "5434:5432"
+    env_file:
+      - ./backend/.env
