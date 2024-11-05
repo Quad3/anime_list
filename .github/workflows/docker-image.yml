@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    paths: [ "backend/**" ]
+    paths: [ "backend/**", ".github/**" ]
   pull_request:
-    paths: [ "backend/**" ]
+    paths: [ "backend/**", ".github/**" ]
 
 jobs:
 
