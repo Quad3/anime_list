@@ -4,7 +4,7 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from config import ACCESS_TOKEN_EXPIRE_MINUTES
+from config import settings
 from .deps import SessionDep
 from .schemas import UserRead, UserCreate, UserRegister, Token
 from .service import get_user_by_username, create_user, authenticate
@@ -30,7 +30,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], sess
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Inactive user",
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
     return Token(
         access_token=create_access_token(

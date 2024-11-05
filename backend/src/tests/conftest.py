@@ -10,13 +10,12 @@ from alembic.operations import Operations
 from alembic.script import ScriptDirectory
 
 from main import app
-from config import DOMAIN, API_V1_STR, TEST_DB_USER, TEST_DB_PASS, TEST_DB_HOST, TEST_DB_PORT, TEST_DB_NAME
+from config import settings
 from database import Base, get_db
 
 
-DATABASE_URL = f"postgresql+asyncpg://{TEST_DB_USER}:{TEST_DB_PASS}@{TEST_DB_HOST}:{TEST_DB_PORT}/{TEST_DB_NAME}"
 test_engine = create_async_engine(
-    DATABASE_URL,
+    str(settings.SQLALCHEMY_TEST_DATABASE_URI),
     future=True,
     echo=True,
 )
@@ -37,7 +36,7 @@ def event_loop():
 def run_migrations(connection: Connection):
     config = Config("alembic.ini")
     config.set_main_option("script_location", "migrations")
-    config.set_main_option("sqlalchemy.url", DATABASE_URL)
+    config.set_main_option("sqlalchemy.url", str(settings.SQLALCHEMY_TEST_DATABASE_URI))
     script = ScriptDirectory.from_config(config)
 
     def upgrade(rev, context):
@@ -95,6 +94,6 @@ async def test_app(test_db):
 @pytest.fixture()
 async def async_client(test_app) -> AsyncClient:
     async with AsyncClient(
-        transport=ASGITransport(app=app), base_url=f"http://{DOMAIN}{API_V1_STR}"
+        transport=ASGITransport(app=app), base_url=f"http://{settings.DOMAIN}{settings.API_V1_STR}"
     ) as ac:
         yield ac

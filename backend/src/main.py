@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api import router as api_router
-from config import FRONTEND_HOST
+from config import settings
 
 
 app = FastAPI(
@@ -12,7 +12,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=FRONTEND_HOST,
+    allow_origins=settings.FRONTEND_HOST,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
