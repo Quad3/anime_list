@@ -1,15 +1,15 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, EmailStr
 from pydantic.types import UUID4
 
 
 class UserBase(BaseModel):
-    username: str = Field(max_length=128)
+    email: EmailStr = Field(max_length=128)
     is_active: bool = True
     is_superuser: bool = False
 
 
 class UserRegister(BaseModel):
-    username: str = Field(max_length=128)
+    email: EmailStr = Field(max_length=128)
     password: str = Field(min_length=8, max_length=40)
 
 

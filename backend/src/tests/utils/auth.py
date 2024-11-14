@@ -1,12 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.models import User
-from .utils import random_lower_string
+from .utils import random_lower_string, random_email
 
 
 async def create_random_user(session: AsyncSession) -> User:
     db_obj = User(
-        username=random_lower_string(),
+        email=random_email(),
         password=random_lower_string(),
     )
     session.add(db_obj)

@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from config import settings
 from .deps import SessionDep
 from .schemas import UserRead, UserCreate, UserRegister, Token
-from .service import get_user_by_username, create_user, authenticate
+from .service import get_user_by_email, create_user, authenticate
 from security import create_access_token
 
 
@@ -23,7 +23,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], sess
     if not user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid username or password",
+            detail="Invalid email or password",
         )
     if not user.is_active:
         raise HTTPException(
@@ -41,11 +41,11 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], sess
 
 @router.post("/signup", response_model=UserRead)
 async def register_user(session: SessionDep, user_register: UserRegister):
-    db_user = await get_user_by_username(session, user_register.username)
+    db_user = await get_user_by_email(session, user_register.email)
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The user with this username already exists in the system",
+            detail="The user with this email already exists in the system",
         )
 
     user_create = UserCreate(

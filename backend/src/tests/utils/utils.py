@@ -12,7 +12,10 @@ async def get_user_token_headers(
         async_client: AsyncClient,
         login_data: UserCreate,
 ) -> dict[str, str]:
-    r = await async_client.post("users/access-token", data=login_data.model_dump())
+    r = await async_client.post(
+        "users/access-token",
+        data={"username": login_data.email, "password": login_data.password},
+    )
     tokens = r.json()
     a_token = tokens["access_token"]
     headers = {"Authorization": f"Bearer {a_token}"}
@@ -24,7 +27,7 @@ async def user_token_headers(
         test_db: AsyncSession,
 ) -> dict[str, str]:
     credentials = {
-        "username": "test_username",
+        "email": "test@test.com",
         "password": "test_password",
     }
     user_create = UserCreate(**credentials)
@@ -34,3 +37,7 @@ async def user_token_headers(
 
 def random_lower_string() -> str:
     return "".join(random.choices(string.ascii_lowercase, k=32))
+
+
+def random_email() -> str:
+    return f"{random_lower_string()}@{random_lower_string()}.com"
