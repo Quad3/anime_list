@@ -12,7 +12,7 @@ from security import create_access_token
 
 
 router = APIRouter(
-    tags=["Anime"],
+    tags=["Auth"],
     prefix="/users",
 )
 
