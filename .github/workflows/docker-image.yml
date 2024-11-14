@@ -33,4 +33,4 @@ jobs:
       run: |
         pip install pytest
         py.test -v
-      working-directory: backend/src
+      working-directory: backend
