@@ -35,7 +35,7 @@ def event_loop():
 
 def run_migrations(connection: Connection):
     config = Config("alembic.ini")
-    config.set_main_option("script_location", "migrations")
+    config.set_main_option("script_location", "src/migrations")
     config.set_main_option("sqlalchemy.url", str(settings.SQLALCHEMY_TEST_DATABASE_URI))
     script = ScriptDirectory.from_config(config)
 
