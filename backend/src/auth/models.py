@@ -12,6 +12,7 @@ class User(Base):
 
     uuid = Column(UUID, primary_key=True, default=uuid.uuid4)
     username = Column(String(128), nullable=False, unique=True)
+    email = Column(String(128), nullable=False, unique=True)
     password = Column(String(256), nullable=False)
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
