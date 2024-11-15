@@ -9,7 +9,7 @@ from .deps import SessionDep
 from .schemas import UserRead, UserCreate, UserRegister, Token
 from .service import get_user_by_email, create_user, authenticate
 from security import create_access_token
-
+from utils import send_email, generate_new_account_email
 
 router = APIRouter(
     tags=["Auth"],
@@ -54,4 +54,13 @@ async def register_user(session: SessionDep, user_register: UserRegister):
         is_superuser=False,
     )
     user = await create_user(session, user_create)
+    email_data = generate_new_account_email(
+        email=user_create.email,
+        password=user_create.password,
+    )
+    send_email(
+        email_to=user_create.email,
+        subject=email_data.subject,
+        html_content=email_data.html_content,
+    )
     return user
