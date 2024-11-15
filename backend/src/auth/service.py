@@ -4,7 +4,7 @@ from pydantic import EmailStr
 
 from security import verify_password, get_password_hash
 from .models import User
-from .schemas import UserCreate, NewPassword
+from .schemas import UserCreate
 
 
 async def create_user(session: AsyncSession, user_create: UserCreate) -> User:
