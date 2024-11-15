@@ -39,4 +39,5 @@ async def password_reset(session: AsyncSession, user: User, new_password: str):
     user.password = get_password_hash(password=new_password)
     session.add(user)
     await session.commit()
-    return
+    await session.refresh(user)
+    return user
