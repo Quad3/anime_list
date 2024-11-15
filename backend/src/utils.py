@@ -18,7 +18,7 @@ class EmailData:
     subject: str
 
 
-def render_email_template(*, template_name: str, context: dict[str, Any]) -> str:
+async def render_email_template(*, template_name: str, context: dict[str, Any]) -> str:
     template_str = (
         Path(__file__).parent / "email-templates" / "build" / template_name
     ).read_text()
@@ -50,12 +50,12 @@ def send_email(
     logger.info(f"send email result: {response}")
 
 
-def generate_new_account_email(
+async def generate_new_account_email(
     email: str, password: str
 ) -> EmailData:
     project_name = settings.PROJECT_NAME
     subject = f"{project_name} - New account for user {email}"
-    html_content = render_email_template(
+    html_content = await render_email_template(
         template_name="new_account.html",
         context={
             "project_name": settings.PROJECT_NAME,

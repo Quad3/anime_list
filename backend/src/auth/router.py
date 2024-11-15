@@ -1,7 +1,7 @@
 from typing import Annotated
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 
 from config import settings
@@ -40,7 +40,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], sess
 
 
 @router.post("/signup", response_model=UserRead)
-async def register_user(session: SessionDep, user_register: UserRegister):
+async def register_user(session: SessionDep, user_register: UserRegister, background_tasks: BackgroundTasks):
     db_user = await get_user_by_email(session, user_register.email)
     if db_user:
         raise HTTPException(
@@ -54,11 +54,12 @@ async def register_user(session: SessionDep, user_register: UserRegister):
         is_superuser=False,
     )
     user = await create_user(session, user_create)
-    email_data = generate_new_account_email(
+    email_data = await generate_new_account_email(
         email=user_create.email,
         password=user_create.password,
     )
-    send_email(
+    background_tasks.add_task(
+        send_email,
         email_to=user_create.email,
         subject=email_data.subject,
         html_content=email_data.html_content,
