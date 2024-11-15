@@ -2,10 +2,14 @@ import logging
 from pathlib import Path
 from typing import Any
 from dataclasses import dataclass
+from datetime import timedelta, datetime, timezone
 
 import emails
+import jwt
 from jinja2 import Template
+from jwt.exceptions import InvalidTokenError
 
+import security
 from config import settings
 
 logging.basicConfig(level=logging.INFO)
@@ -66,3 +70,60 @@ async def generate_new_account_email(
         },
     )
     return EmailData(html_content=html_content, subject=subject)
+
+
+async def generate_reset_password_email(email: str, token: str) -> EmailData:
+    project_name = settings.PROJECT_NAME
+    subject = f"{project_name} - Password recovery for user {email}"
+    link = f"{settings.FRONTEND_HOST}/reset-password?token={token}"
+    html_content = await render_email_template(
+        template_name="reset_password.html",
+        context={
+            "project_name": settings.PROJECT_NAME,
+            "email": email,
+            "email_to": email,
+            "valid_hours": settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS,
+            "link": link,
+        },
+    )
+    return EmailData(html_content=html_content, subject=subject)
+
+
+async def generate_reset_password_success_email(email: str, new_password: str) -> EmailData:
+    project_name = settings.PROJECT_NAME
+    subject = f"{project_name} - Password changed for user {email}"
+    link = f"{settings.FRONTEND_HOST}/login"
+    html_content = await render_email_template(
+        template_name="reset_password_success.html",
+        context={
+            "project_name": settings.PROJECT_NAME,
+            "email": email,
+            "new_password": new_password,
+            "email_to": email,
+            "link": link,
+        },
+    )
+    return EmailData(html_content=html_content, subject=subject)
+
+
+def generate_password_reset_token(email: str) -> str:
+    delta = timedelta(hours=settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS)
+    now = datetime.now(timezone.utc)
+    expires = now + delta
+    exp = expires.timestamp()
+    encoded_jwt = jwt.encode(
+        {"exp": exp, "nbf": now, "sub": email},
+        settings.SECRET_KEY,
+        algorithm=security.ALGORITHM,
+    )
+    return encoded_jwt
+
+
+def verify_password_reset_token(token: str) -> str | None:
+    try:
+        decoded_token = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
+        )
+        return str(decoded_token["sub"])
+    except InvalidTokenError:
+        return None

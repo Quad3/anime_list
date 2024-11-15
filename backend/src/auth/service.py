@@ -4,7 +4,7 @@ from pydantic import EmailStr
 
 from security import verify_password, get_password_hash
 from .models import User
-from .schemas import UserCreate
+from .schemas import UserCreate, NewPassword
 
 
 async def create_user(session: AsyncSession, user_create: UserCreate) -> User:
@@ -33,3 +33,10 @@ async def authenticate(session: AsyncSession, email: EmailStr, password: str) ->
     if not verify_password(password, db_user.password):
         return None
     return db_user
+
+
+async def password_reset(session: AsyncSession, user: User, new_password: str):
+    user.password = get_password_hash(password=new_password)
+    session.add(user)
+    await session.commit()
+    return

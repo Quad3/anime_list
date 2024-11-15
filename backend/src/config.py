@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     EMAILS_FROM_EMAIL: str | None = None
     EMAILS_FROM_NAME: str | None = None
 
+    EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 48
+
     @computed_field # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
@@ -66,9 +68,7 @@ class Settings(BaseSettings):
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
 
-    FRONTEND_HOST: list[str] = [
-        "http://localhost:3000",
-    ]
+    FRONTEND_HOST: str = "http://localhost:3000"
 
 
 settings = Settings()

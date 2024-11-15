@@ -6,10 +6,16 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from config import settings
 from .deps import SessionDep
-from .schemas import UserRead, UserCreate, UserRegister, Token
-from .service import get_user_by_email, create_user, authenticate
+from .schemas import UserRead, UserCreate, UserRegister, Token, Message, NewPassword
+from .service import get_user_by_email, create_user, authenticate, password_reset
 from security import create_access_token
-from utils import send_email, generate_new_account_email
+from utils import (
+    send_email,
+    generate_new_account_email,
+    generate_password_reset_token,
+    generate_reset_password_email,
+    verify_password_reset_token, generate_reset_password_success_email,
+)
 
 router = APIRouter(
     tags=["Auth"],
@@ -65,3 +71,50 @@ async def register_user(session: SessionDep, user_register: UserRegister, backgr
         html_content=email_data.html_content,
     )
     return user
+
+
+@router.post("/password-recovery/{email}")
+async def recover_password(email: str, session: SessionDep, background_tasks: BackgroundTasks) -> Message:
+    user = await get_user_by_email(session=session, email=email)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The user with this email does not exist in the system.",
+        )
+    password_reset_token = generate_password_reset_token(email=email)
+    email_data = await generate_reset_password_email(
+        email=email, token=password_reset_token
+    )
+    background_tasks.add_task(
+        send_email,
+        email_to=user.email,
+        subject=email_data.subject,
+        html_content=email_data.html_content,
+    )
+    return Message(message="Password recovery email sent")
+
+
+@router.post("/reset-password/")
+async def reset_password(session: SessionDep, body: NewPassword, background_tasks: BackgroundTasks) -> Message:
+    email = verify_password_reset_token(token=body.token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Invalid token")
+    user = await get_user_by_email(session=session, email=email)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="The user with this email does not exist in the system.",
+        )
+    elif not user.is_active:
+        raise HTTPException(status_code=400, detail="Inactive user")
+
+    await password_reset(session, user, body.new_password)
+    email_data = await generate_reset_password_success_email(email=email, new_password=body.new_password)
+    background_tasks.add_task(
+        send_email,
+        email_to=user.email,
+        subject=email_data.subject,
+        html_content=email_data.html_content,
+    )
+    return Message(message="Password updated successfully")

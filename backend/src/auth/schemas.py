@@ -32,3 +32,12 @@ class Token(BaseModel):
 
 class TokenPayload(BaseModel):
     sub: str | None = None
+
+
+class NewPassword(BaseModel):
+    token: str
+    new_password: str = Field(min_length=8, max_length=40)
+
+
+class Message(BaseModel):
+    message: str
