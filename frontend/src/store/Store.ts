@@ -39,7 +39,4 @@ export default class Store {
             this.setIsAuth(true);
         }
     }
-
-    // TODO signup
-    // async signup(username: string, password: string) {}
 }
