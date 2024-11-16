@@ -14,7 +14,8 @@ from utils import (
     generate_new_account_email,
     generate_password_reset_token,
     generate_reset_password_email,
-    verify_password_reset_token, generate_reset_password_success_email,
+    verify_password_reset_token,
+    generate_reset_password_success_email,
 )
 
 router = APIRouter(
