@@ -95,7 +95,7 @@ async def recover_password(email: str, session: SessionDep, background_tasks: Ba
     return Message(message="Password recovery email sent")
 
 
-@router.post("/reset-password/")
+@router.post("/reset-password")
 async def reset_password(session: SessionDep, body: NewPassword, background_tasks: BackgroundTasks) -> Message:
     email = verify_password_reset_token(token=body.token)
     if not email:
