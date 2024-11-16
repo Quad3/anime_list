@@ -53,6 +53,8 @@ const CreateAnimeForm = () => {
             <input
                 onChange={e => setRate(Number(e.target.value))}
                 value={rate}
+                min="1"
+                max="10"
                 type="number"
                 placeholder="Введите оценку от 1 до 10"
             />
