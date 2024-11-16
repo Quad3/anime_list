@@ -9,3 +9,7 @@ export interface SignupResponse {
     is_superuser: boolean;
     uuid: string;
 }
+
+export interface Message {
+    message: string;
+}

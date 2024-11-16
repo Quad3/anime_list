@@ -1,21 +1,23 @@
 import React, {useContext, useState} from 'react';
 import {observer} from "mobx-react-lite";
+import {Link} from "react-router-dom"
 
 import {Context} from "../../../index";
 import cl from './Auth.module.css';
 
 const LoginForm = () => {
-    const [username, setUsername] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const {store} = useContext(Context)
 
     return (
         <main className={cl.mainAuth}>
+            <h2>Войти</h2>
             <input
-                onChange={e => setUsername(e.target.value)}
-                value={username}
+                onChange={e => setEmail(e.target.value)}
+                value={email}
                 type="text"
-                placeholder="Введите имя пользователя"
+                placeholder="Введите эл. почту"
             />
             <input
                 onChange={e => setPassword(e.target.value)}
@@ -23,7 +25,8 @@ const LoginForm = () => {
                 type="password"
                 placeholder="Введите пароль"
             />
-            <button onClick={() => store.login(username, password)}>Логин</button>
+            <Link to="/password-recovery">Забыли пароль?</Link>
+            <button onClick={() => store.login(email, password)}>Войти</button>
         </main>
     );
 };

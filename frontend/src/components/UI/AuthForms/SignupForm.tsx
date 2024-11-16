@@ -5,7 +5,7 @@ import {Context} from "../../../index";
 import cl from './Auth.module.css';
 
 const SignupForm = () => {
-    const [username, setUsername] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [password2, setPassword2] = useState<string>('');
     const {store} = useContext(Context)
@@ -13,16 +13,17 @@ const SignupForm = () => {
     async function validateAndSignup() {
         if (password !== password2)
             return
-        await store.signup(username, password);
+        await store.signup(email, password);
     }
 
     return (
         <main className={cl.mainAuth}>
+            <h2>Регистрация</h2>
             <input
-                onChange={e => setUsername(e.target.value)}
-                value={username}
+                onChange={e => setEmail(e.target.value)}
+                value={email}
                 type="text"
-                placeholder="Введите имя пользователя"
+                placeholder="Введите эл. почту"
             />
             <input
                 onChange={e => setPassword(e.target.value)}

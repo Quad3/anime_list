@@ -6,8 +6,10 @@ import LoginForm from "../components/UI/AuthForms/LoginForm";
 import CreateAnimeForm from "../components/CreateAnimeForm";
 import Navbar from "../components/Navbar";
 import AnimeDetail from "../components/AnimeDetail";
-import SignupForm from "../components/UI/AuthForms/SIgnupForm";
+import SignupForm from "../components/UI/AuthForms/SignupForm";
 import Gantt from "../components/UI/Gantt/Gantt";
+import PasswordRecovery from "../components/UI/AuthForms/PasswordRecovery";
+import ResetPassword from "../components/UI/AuthForms/ResetPassword";
 
 const _privateRoutes = [
     {
@@ -40,6 +42,14 @@ export const _publicRoutes = [
     {
         path: '/signup',
         element: <SignupForm/>,
+    },
+    {
+        path: '/password-recovery',
+        element: <PasswordRecovery/>
+    },
+    {
+        path: '/reset-password',
+        element: <ResetPassword/>
     },
     {
         path: '*',

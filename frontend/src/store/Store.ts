@@ -14,9 +14,9 @@ export default class Store {
         this.isAuth = bool;
     }
 
-    async login(username: string, password: string) {
+    async login(email: string, password: string) {
         try {
-            const response = await AuthService.login(username, password);
+            const response = await AuthService.login(email, password);
             localStorage.setItem('token', response.data.access_token);
             this.setIsAuth(true);
         } catch (e: any) {
@@ -24,10 +24,10 @@ export default class Store {
         }
     }
 
-    async signup(username: string, password: string) {
+    async signup(email: string, password: string) {
         try {
-            const response = await AuthService.signup(username, password);
-            await this.login(username, password);
+            await AuthService.signup(email, password);
+            await this.login(email, password);
         } catch (e: any) {
             console.log(e.response?.data?.detail);
         }
