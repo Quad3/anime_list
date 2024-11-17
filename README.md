@@ -7,6 +7,7 @@
 - 🐋 [Docker Compose](https://www.docker.com) for development and production.
 - 🔑 [JWT (JSON Web Token)](https://jwt.io) authentication.
 - ✅ Tests with [Pytest](https://pytest.org).
+- 📫 Email based password recovery.
 ### Frontend
 - 🚀 [React](https://react.dev) for the frontend.
   - Custom gantt chart
