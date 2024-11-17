@@ -1,12 +1,10 @@
 import uuid
 
-import sqlalchemy.sql.functions as func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select, func
 from fastapi import HTTPException, status
 from sqlalchemy import exc
-from fastapi.encoders import jsonable_encoder
 
 from .schemas import (
     AnimeCreate,
@@ -135,7 +133,7 @@ async def update_anime_start_end(
         .filter(models.Anime.uuid == anime_id)
     )
     result = await session.scalars(stmt)
-    anime: models.Anime = result.unique().first()
+    anime: models.Anime | None = result.unique().first()
     if not anime:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Anime with this id does not exist")
     if anime.user_id != current_user.uuid:

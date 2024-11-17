@@ -3,10 +3,10 @@ from datetime import date
 from fastapi import HTTPException, status
 
 from .models import AnimeStartEnd, State
-from .schemas import StartEndBase
+from .schemas import StartEndCreate
 
 
-def fill_start_end_if_valid(source: list[StartEndBase] | None) -> list[AnimeStartEnd]:
+def fill_start_end_if_valid(source: list[StartEndCreate] | None) -> list[AnimeStartEnd]:
     if source is None:
         return []
 
@@ -33,7 +33,7 @@ def is_start_end_valid_or_raise(start_date: date, end_date: date) -> bool:
     return True
 
 
-def determine_anime_state(start_end_list: list[StartEndBase] | None) -> State:
+def determine_anime_state(start_end_list: list[StartEndCreate] | None) -> State:
     if not start_end_list:
         return State.PLAN_TO_WATCH
     if not start_end_list[-1].get("end_date", None):

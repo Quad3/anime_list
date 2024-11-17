@@ -13,7 +13,7 @@ def random_lower_string(k: int = 16) -> str:
     return "".join(random.choices(string.ascii_lowercase, k=k))
 
 
-def random_start_end(k: int = 1, start_date: date = None) -> list[dict[date | Any]]:
+def random_start_end(k: int = 1, start_date: date | None = None) -> list[dict[str, date | Any]]:
     res = []
     if not start_date:
         start_date = (
@@ -33,8 +33,8 @@ def random_start_end(k: int = 1, start_date: date = None) -> list[dict[date | An
 async def create_random_anime(
         session: AsyncSession,
         start_end_len: int = 1,
-        start_date: date = None,
-        user_id: uuid.UUID = None,
+        start_date: date | None = None,
+        user_id: uuid.UUID | None = None,
 ) -> Anime:
     anime = Anime(
         name=random_lower_string(),

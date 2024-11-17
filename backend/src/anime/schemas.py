@@ -20,7 +20,7 @@ class StartEndRead(StartEndBase):
     pass
 
 
-class StartEndUpdate(StartEndBase):
+class StartEndUpdate(BaseModel):
     start_date: datetime.date | None = None
     end_date: datetime.date | None = None
 
@@ -59,7 +59,7 @@ class AnimeListRead(BaseModel):
     count: int
 
 
-class AnimeUpdate(AnimeBase):
+class AnimeUpdate(BaseModel):
     name: str | None = None
     state: State | None = None
     rate: int | None = Field(ge=1, le=10, default=None)
