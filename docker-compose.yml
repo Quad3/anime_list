@@ -17,7 +17,8 @@ services:
     env_file:
       - .env
     container_name: myanime_app
-    command: "gunicorn --chdir ./src main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:5000"
+    command: "poetry run gunicorn --chdir ./src main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker \
+      --bind=0.0.0.0:5000"
     ports:
       - "5000:5000"
     depends_on:

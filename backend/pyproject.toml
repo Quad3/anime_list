@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "anime-list"
+version = "0.1.0"
+description = ""
+authors = ["Quad3 <bbulat1990@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.115.5"
+sqlalchemy = "^2.0.36"
+asyncpg = "^0.30.0"
+uvicorn = "^0.32.0"
+alembic = "^1.14.0"
+pydantic = {extras = ["email"], version = "^2.9.2"}
+pydantic-settings = "^2.6.1"
+sqlalchemy-utils = "^0.41.2"
+pyjwt = "^2.10.0"
+passlib = "^1.7.4"
+bcrypt = "^4.2.0"
+alembic-postgresql-enum = "^1.3.0"
+emails = "^0.6"
+jinja2 = "^3.1.4"
+python-multipart = "^0.0.17"
+gunicorn = "^23.0.0"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.3"
+httpx = "^0.27.2"
+mypy = "^1.13.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
