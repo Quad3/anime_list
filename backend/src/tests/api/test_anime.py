@@ -84,7 +84,7 @@ async def test_get_anime_list(async_client: AsyncClient, test_db: AsyncSession):
     assert response.status_code == 200
     content = response.json()
     assert content["count"] != 0
-    for cont, anime in zip(content["data"], [anime1, anime2]):
+    for cont, anime in zip(content["data"], [anime2, anime1]):
         assert cont["uuid"] == str(anime.uuid)
         assert cont["name"] == anime.name
         assert cont["rate"] == anime.rate

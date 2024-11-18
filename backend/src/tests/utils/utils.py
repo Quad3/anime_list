@@ -22,8 +22,8 @@ def random_start_end(k: int = 1, start_date: date | None = None) -> list[dict[st
     for i in range(k):
         end_date = start_date + timedelta(days=random.randint(1, 60))
         res.append({
-            "start_date": str(start_date),
-            "end_date": str(end_date),
+            "start_date": start_date,
+            "end_date": end_date,
         })
         start_date = end_date + timedelta(days=random.randint(90, 180))
     return res

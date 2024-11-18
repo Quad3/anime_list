@@ -1,6 +1,7 @@
 from random import randint
 
 from locust import HttpUser, task
+from fastapi.encoders import jsonable_encoder
 
 from utils.utils import random_lower_string, random_start_end
 
@@ -37,7 +38,7 @@ class UserBehavior(HttpUser):
             json={
                 "name": s,
                 "rate": randint(1, 10),
-                "start_end": random_start_end(randint(1, 2)),
+                "start_end": jsonable_encoder(random_start_end(randint(1, 2))),
                 "review": s,
             },
             headers=self.headers,
