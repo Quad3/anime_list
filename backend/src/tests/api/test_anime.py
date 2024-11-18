@@ -8,8 +8,7 @@ from httpx import AsyncClient
 from anime.models import State
 from anime.router import router
 from tests.utils.anime import create_random_anime
-from tests.utils.utils import user_token_headers
-from tests.utils.auth import create_random_user
+from tests.utils.auth import create_random_user, user_token_headers
 from auth.deps import get_current_user
 
 
