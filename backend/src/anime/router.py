@@ -45,7 +45,7 @@ async def create_anime(
 async def get_anime_list(
         session: SessionDep,
         current_user: CurrentUser,
-        limit: Annotated[int, Query(ge=1)] = 5,
+        limit: Annotated[int, Query(ge=1, le=100)] = 20,
         page: Annotated[int, Query(ge=1)] = 1,
 ):
     anime_list = await service.get_anime_list(

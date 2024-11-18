@@ -27,7 +27,7 @@ class Anime(Base):
     start_end = relationship(
         "AnimeStartEnd",
         back_populates="anime",
-        order_by="AnimeStartEnd.start_date",
+        order_by="desc(AnimeStartEnd.start_date)",
     )
     user = relationship("User", back_populates="anime")
 
