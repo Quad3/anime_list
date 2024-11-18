@@ -1,4 +1,8 @@
+from random import randint
+
 from locust import HttpUser, task
+
+from utils.utils import random_lower_string, random_start_end
 
 
 class UserBehavior(HttpUser):
@@ -17,10 +21,24 @@ class UserBehavior(HttpUser):
         )
         self.headers = {"Authorization": f"Bearer {response.json()['access_token']}"}
 
-    @task(1)
+    @task(6)
     def index(self):
         self.client.get('/api/v1/anime', headers=self.headers)
 
-    @task(2)
+    @task(6)
     def start_end_list(self):
         self.client.get('/api/v1/anime/start-end-list', headers=self.headers)
+
+    @task(1)
+    def create_anime(self):
+        s = random_lower_string()
+        self.client.post(
+            '/api/v1/anime/create',
+            json={
+                "name": s,
+                "rate": randint(1, 10),
+                "start_end": random_start_end(randint(1, 2)),
+                "review": s,
+            },
+            headers=self.headers,
+        )
