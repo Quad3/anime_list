@@ -37,6 +37,9 @@ class Settings(BaseSettings):
 
     EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 48
 
+    FIRST_SUPERUSER: str
+    FIRST_SUPERUSER_PASSWORD: str
+
     @computed_field # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:

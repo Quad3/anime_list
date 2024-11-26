@@ -18,3 +18,6 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     anime = relationship("Anime", back_populates="user")
+
+
+from anime.models import Anime # noqa: E402
